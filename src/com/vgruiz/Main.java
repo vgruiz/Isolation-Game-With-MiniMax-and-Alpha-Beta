@@ -1,61 +1,37 @@
 package com.vgruiz;
 
+import java.util.Scanner;
+
 public class Main {
 
 	public static void main(String[] args) {
 		Board board = new Board();
 		
 		board.print();
+		
+		while(true) {
+			System.out.println("X");
+			board.xMove(getMove());
+			board.print();
+			
+			System.out.println("O");
+			board.oMove(getMove());
+			board.print();
+		}
+		
+		//Player is asked who goes first
+		//Player goes, board accepts move, updates
+		//Computer goes- uses AlphaBetaSearch to make decision, board accepts move, updates
+		//repeat until board is in a terminal state
+		
 	}
-
-//	public anAction AlphaBetaSearch(State state) {
-//		UtilityValue v = MaxValue(state, -infinity, +infinity);
-//		
-//		return (anAction) //in Successors(state) with value v
-//	}
-//	
-//	
-//	public MaxValue(State state, Value alpha, Value beta) {
-//		if TerminalTest(state) {
-//
-//			return Utility(state);
-//		}
-//		
-//		UtilityValue v = -100000000; //negative infinity
-//		
-//		for(int i = 0; i < Successors(state); i++) {
-//			Successor s = successors[i];
-//			
-//			v = Max(v, MinValue( s(state), alpha, beta ));
-//			
-//			if (v >= beta) {
-//				return v;
-//			}
-//			alpha = Mac(alpha, v);
-//		}
-//		
-//		return v;
-//	}
-//	
-//	public MinValue(State state, Value alpha, Value beta) {
-//		if(TerminalTest(state)) {
-//			return Utility(state);
-//		}
-//		
-//		UtilityValue v = 10000000;
-//		
-//		for(int i = 0; i < Successors(state); i++) {
-//			Successor s = successors[i];
-//			
-//			v = Min(v, MaxValue( s(state), alpha, beta ));
-//			
-//			if(v <= alpha) {
-//				return v;
-//			}
-//			
-//			beta = Min(beta, v);
-//		}
-//		
-//		return v;
-//	}
+	
+	public static String getMove() {
+		Scanner scanner = new Scanner(System.in);
+		System.out.print("Enter move: ");
+		String move = scanner.next();
+	
+		return move;
+	}
+	
 }
