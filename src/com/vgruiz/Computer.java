@@ -1,83 +1,73 @@
-package com.vgruiz;
-
 public class Computer {
-	
+
 	Board[] successors;
-	
+
 	public String AlphaBetaSearch(Board board) {
 		int v = MaxValue(board, Integer.MIN_VALUE, Integer.MAX_VALUE);
-		
+
 		String move = getMove(v); //this will consider all moves with utility value v and randomly select one
-		
+
 		return move;
 	}
 
 	private String getMove(int v) {
-		
+
 		return null;
 	}
 
 	public int MaxValue(Board board, int alpha, int beta) {
-		
+
 		if(board.isTerminal()) {
 			return board.getUtilityValue();
 		}
-		
+
 		int v = Integer.MIN_VALUE; //Utility Value v
-		
-		successors = generateSuccessors(board);
-		
+
+		successors = board.generateSuccessors(board.oRow, board.oCol, true);
+
 		for(int i = 0; i < successors.length; i++) {
 			Board s = successors[i];
-			
+
 			v = Math.max(v, MinValue(s, alpha, beta));
-			
+
 			if(v >= beta) {
 				return v;
 			}
-			
+
 			alpha = Math.max(alpha, v);
-			
+
 		}
-		
+
 		return v; //Utility Value
 	}
-	
-	public Board[] generateSuccessors(Board board) {
-		//count # of possible next moves
-		//initialize successors[] with correct quantity of indices
-		//set each successor[i] with a board that has been changed with all of the different possible moves
-		
-		return null;
-	}
-	
+
 	public int MinValue(Board board, int alpha, int beta) {
 
 		if(board.isTerminal()) {
 			return board.getUtilityValue();
 		}
-		
+
 		int v = Integer.MAX_VALUE; //Utility Value v
-		
-		successors = generateSuccessors(board);
-		
+
+		successors = board.generateSuccessors(board.xRow, board.oCol, false); // we prune the tree after 1 terminal state
+
 		for(int i = 0; i < successors.length; i++) {
 			Board s = successors[i];
-			
+
 			v = Math.min(v, MaxValue(s, alpha, beta));
-			
+
 			if(v <= alpha) {
 				return v;
 			}
-			
+
 			beta = Math.min(beta, v);
-			
+
 		}
-		
+
 		return v; //Utility Value
 	}
-	
-	
+
+
 //	public anAction AlphaBetaSearch(State state) {
 //		UtilityValue v = MaxValue(state, -infinity, +infinity);
 //		
