@@ -1,3 +1,5 @@
+package com.vgruiz;
+
 public class Board {
 	final int BOARD_SIZE = 8;
 
@@ -226,6 +228,12 @@ public class Board {
 		System.out.println();
 	}
 
+	public void print(Board[] boards) {
+		for(int i = 0; i < boards.length; i++) {
+			boards[i].print();
+		}
+	}
+	
 	// checks to see if a terminal state is reached (a winner is chosen)
 	public boolean isTerminal() {
 		if(getOScore() == 0 || getXScore() == 0)
@@ -233,52 +241,43 @@ public class Board {
 		else
 			return false;
 	}
+	
+	public char[][] clone(char[][] board) {
+		int len = board.length;
+		
+		char[][] newBoard = new char[board.length][board.length];
+		
+		for(int i = 0; i < board.length; i++) {
+			for(int j = 0; j < board.length; j++) {
+				newBoard[i][j] = board[i][j];
+			}
+		}
+		
+		return newBoard;
+	}
 
 	public Board[] generateSuccessors(int row, int col, boolean isOTurn){
 		int counter = 0;
 		Board[] boards;
-		if(isOTurn == true)
+		char currentChar;
+		
+		if(isOTurn == true) {
 			boards = new Board[getOScore()];
-		else
+			currentChar = boardSymbols[3];
+		} else {
 			boards = new Board[getXScore()];
-		char[][] newCharBoard = board.clone();
+			currentChar = boardSymbols[2];
+		}
+			
+		char[][] newCharBoard = clone(board);
+		
 		// diagonal successors
+		
+		//down and right
 		for(int i = row + 1, j = col + 1; i < BOARD_SIZE && j < BOARD_SIZE; i++, j++) {
 			if(board[i][j] == boardSymbols[0]) {
-				newCharBoard[i][j] = boardSymbols[3];
-				newCharBoard[row][col] = boardSymbols[1];
-				Board newBoard = new Board(newCharBoard);
-				boards[counter] = newBoard;
-				counter++;
-			}
-			else
-				break;
-		}
-		for(int i = row - 1, j = col - 1; i < BOARD_SIZE && j < BOARD_SIZE; i--, j--) {
-			if(board[i][j] == boardSymbols[0]) {
-				newCharBoard[i][j] = boardSymbols[3];
-				newCharBoard[row][col] = boardSymbols[1];
-				Board newBoard = new Board(newCharBoard);
-				boards[counter] = newBoard;
-				counter++;
-			}
-			else
-				break;
-		}
-		for(int i = row - 1, j = col + 1; i < BOARD_SIZE && j < BOARD_SIZE; i--, j++) {
-			if(board[i][j] == boardSymbols[0]) {
-				newCharBoard[i][j] = boardSymbols[3];
-				newCharBoard[row][col] = boardSymbols[1];
-				Board newBoard = new Board(newCharBoard);
-				boards[counter] = newBoard;
-				counter++;
-			}
-			else
-				break;
-		}
-		for(int i = row + 1, j = col - 1; i < BOARD_SIZE && j < BOARD_SIZE; i++, j--) {
-			if(board[i][j] == boardSymbols[0]) {
-				newCharBoard[i][j] = boardSymbols[3];
+				newCharBoard = clone(board);
+				newCharBoard[i][j] = currentChar;
 				newCharBoard[row][col] = boardSymbols[1];
 				Board newBoard = new Board(newCharBoard);
 				boards[counter] = newBoard;
@@ -288,10 +287,57 @@ public class Board {
 				break;
 		}
 
+		//up and left
+		for(int i = row - 1, j = col - 1; i >= 0 && j >= 0; i--, j--) {
+			if(board[i][j] == boardSymbols[0]) {
+				newCharBoard = clone(board);
+				newCharBoard[i][j] = currentChar;
+				newCharBoard[row][col] = boardSymbols[1];
+				Board newBoard = new Board(newCharBoard);
+				boards[counter] = newBoard;
+				counter++;
+			}
+			else
+				break;
+		}
+
+		//up and right
+		for(int i = row - 1, j = col + 1; i >= 0 && j < BOARD_SIZE; i--, j++) {
+			if(board[i][j] == boardSymbols[0]) {
+				newCharBoard = clone(board);
+				newCharBoard[i][j] = currentChar;
+				newCharBoard[row][col] = boardSymbols[1];
+				Board newBoard = new Board(newCharBoard);
+				boards[counter] = newBoard;
+				counter++;
+			}
+			else
+				break;
+		}
+		
+		//down and left
+		for(int i = row + 1, j = col - 1; i < BOARD_SIZE && j >= 0; i++, j--) {
+			if(board[i][j] == boardSymbols[0]) {
+				newCharBoard = clone(board);
+				newCharBoard[i][j] = currentChar;
+				newCharBoard[row][col] = boardSymbols[1];
+				Board newBoard = new Board(newCharBoard);
+				boards[counter] = newBoard;
+				counter++;
+			}
+			else
+				break;
+		}
+		
+
 		// horizontal successors
+
+		newCharBoard = board.clone();
+		
 		for(int i = row + 1; i < BOARD_SIZE; i++) {
 			if(board[i][col] == boardSymbols[0]) {
-				newCharBoard[i][col] = boardSymbols[3];
+				newCharBoard = clone(board);
+				newCharBoard[i][col] = currentChar;
 				newCharBoard[row][col] = boardSymbols[1];
 				Board newBoard = new Board(newCharBoard);
 				boards[counter] = newBoard;
@@ -300,9 +346,13 @@ public class Board {
 			else
 				break;
 		}
-		for(int i = row - 1; i > 0; i--) {
+		
+		newCharBoard = board.clone();
+		
+		for(int i = row - 1; i >= 0; i--) {
 			if(board[i][col] == boardSymbols[0]) {
-				newCharBoard[i][col] = boardSymbols[3];
+				newCharBoard = clone(board);
+				newCharBoard[i][col] = currentChar;
 				newCharBoard[row][col] = boardSymbols[1];
 				Board newBoard = new Board(newCharBoard);
 				boards[counter] = newBoard;
@@ -311,10 +361,15 @@ public class Board {
 			else
 				break;
 		}
+		
 		// vertical successors
+		
+		newCharBoard = board.clone();
+		
 		for(int i = col + 1; i < BOARD_SIZE; i++) {
 			if(board[row][i] == boardSymbols[0]) {
-				newCharBoard[row][i] = boardSymbols[3];
+				newCharBoard = clone(board);
+				newCharBoard[row][i] = currentChar;
 				newCharBoard[row][col] = boardSymbols[1];
 				Board newBoard = new Board(newCharBoard);
 				boards[counter] = newBoard;
@@ -323,9 +378,13 @@ public class Board {
 			else
 				break;
 		}
-		for(int i = col - 1; i > 0; i--) {
+		
+		newCharBoard = board.clone();
+		
+		for(int i = col - 1; i >= 0; i--) {
 			if(board[row][i] == boardSymbols[0]) {
-				newCharBoard[row][i] = boardSymbols[3];
+				newCharBoard = clone(board);
+				newCharBoard[row][i] = currentChar;
 				newCharBoard[row][col] = boardSymbols[1];
 				Board newBoard = new Board(newCharBoard);
 				boards[counter] = newBoard;
@@ -338,55 +397,91 @@ public class Board {
 		return boards;
 	}
 
-	// gets the score for the O player given the current board state
+	/**
+	 *  
+	 * @return the score for the O player given the current board state
+	 */
 	public int getUtilityValue() {
 		return getOScore() - getXScore(); // can add aggression later on
 	}
 
-	// gets the number of available moves for O
+	/**
+	 * 
+	 * @return the number of available moves for O
+	 */
 	public int getOScore()
 	{
 		return getDiagonalValue(oRow, oCol) + getHorizontalValue(oRow, oCol) + getVerticalValue(oRow, oCol);
 	}
 
-	// gets the number of available moves for X
+	/**
+	 *  
+	 * @return the number of available moves for X
+	 */
 	public int getXScore()
 	{
 		return getDiagonalValue(xRow,xCol) + getHorizontalValue(xRow, xCol) + getVerticalValue(xRow, xCol);
 	}
 
-	// gets the number of moves diagonally for a given location of [row, col]
+	/**
+	 *  
+	 * @param row
+	 * @param col
+	 * @return the number of moves diagonally for a given location of [row, col]
+	 */
 	private int getDiagonalValue(int row, int col)
 	{
 		int counter = 0;
+		
+		//going down and right
 		for(int i = row + 1, j = col + 1; i < BOARD_SIZE && j < BOARD_SIZE; i++, j++) {
 			if(board[i][j] == boardSymbols[0])
 				counter++;
 			else
 				break;
 		}
+		
+		//System.out.println(counter);
+		
+		//going up and left
 		for(int i = row - 1, j = col - 1; i > 0 && j > 0; i--, j--) {
 			if(board[i][j] == boardSymbols[0])
 				counter++;
 			else
 				break;
 		}
+		
+		//System.out.println(counter);
+		
+		//going down and left
 		for(int i = row + 1, j = col - 1; i < BOARD_SIZE && j > 0; i++, j--) {
 			if(board[i][j] == boardSymbols[0])
 				counter++;
 			else
 				break;
 		}
+
+		//System.out.println(counter);
+		
+		//going up and right
 		for(int i = row - 1, j = col + 1; i > 0 && j < BOARD_SIZE; i--, j++) {
 			if(board[i][j] == boardSymbols[0])
 				counter++;
 			else
 				break;
 		}
+		
+		//System.out.println(counter);
+		
 		return counter;
 	}
 
-	// gets the number of moves vertically for a given location of [row, col]
+	/**
+	 *  
+	 * @param row
+	 * @param col
+	 * @return the number of moves vertically for a given location of [row, col]
+	 */
 	private int getVerticalValue(int row, int col)
 	{
 		int counter = 0;
@@ -396,31 +491,48 @@ public class Board {
 			else
 				break;
 		}
-		for(int i = col - 1; i > 0; i--) {
+		
+		//System.out.println(counter);
+		
+		for(int i = row - 1; i >= 0; i--) {
 			if(board[i][col] == boardSymbols[0])
 				counter++;
 			else
 				break;
 		}
+		
+		//System.out.println(counter);
+		
 		return counter;
 	}
 
-	// gets the number of moves horizontally for a given location of [row, col]
+	/**
+	 *  
+	 * @param row
+	 * @param col
+	 * @return the number of moves horizontally for a given location of [row, col]
+	 */
 	private int getHorizontalValue(int row, int col)
 	{
 		int counter = 0;
-		for(int i = row + 1; i < BOARD_SIZE; i++) {
+		for(int i = col + 1; i < BOARD_SIZE; i++) {
 			if(board[row][i] == boardSymbols[0])
 				counter++;
 			else
 				break;
 		}
-		for(int i = row - 1; i > 0; i--) {
+		
+		//System.out.println(counter);
+		
+		for(int i = col - 1; i >= 0; i--) {
 			if(board[row][i] == boardSymbols[0])
 				counter++;
 			else
 				break;
 		}
+		
+		//System.out.println(counter);
+		
 		return counter;
 	}
 }

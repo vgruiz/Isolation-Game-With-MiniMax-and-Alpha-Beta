@@ -1,3 +1,5 @@
+package com.vgruiz;
+
 import java.util.Scanner;
 
 public class Main {
@@ -5,8 +7,14 @@ public class Main {
 	public static void main(String[] args) {
 		Board board = new Board();
 
+//		board.board[5][7] = '#';
+//		board.board[3][3] = '#';
 		board.print();
+		
+		Board[] boards = board.generateSuccessors(board.xRow, board.xCol, false);
+		board.print(boards);
 
+//		System.out.println(board.getOScore());
 
 		/*
 		while(true) {
