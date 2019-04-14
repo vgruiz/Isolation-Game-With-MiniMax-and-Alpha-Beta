@@ -1,3 +1,7 @@
+package com.vgruiz;
+
+//test change
+
 public class Computer {
 
 	Board[] successors;
