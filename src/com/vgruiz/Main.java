@@ -1,3 +1,5 @@
+package com.vgruiz;
+
 import java.util.Scanner;
 
 public class Main {
