@@ -1,7 +1,14 @@
 package com.vgruiz;
 
 public class Board {
-	final int BOARD_SIZE = 8;
+	final int BOARD_SIZE = 3;
+	
+	Board[] successors;
+	/**
+	 * As Computer.MinValue or .MaxValue returns v, the projected value will be passed to the parent board.
+	 * projectedValue should not be -1.
+	 */
+	int projectedValue = -1000000;
 
 	/**
 	 *	- is an empty square,
@@ -16,7 +23,7 @@ public class Board {
 	//positions for a new board
 	//initially at start positions as specified
 	int xRow = 0, xCol = 0; //X is computer
-	int oRow = 7, oCol = 7; //O is player
+	int oRow = 2, oCol = 2; //O is player
 
 	public Board() {
 		board = new char[BOARD_SIZE][BOARD_SIZE];
@@ -30,11 +37,12 @@ public class Board {
 		board[xRow][xCol] = boardSymbols[2];
 		board[oRow][oCol] = boardSymbols[3];
 
-		Computer computer = new Computer();
+		//Computer computer = new Computer();
 	}
 
 	public Board(char[][] newBoard){
 		board = newBoard.clone();
+		updateLocations();
 	}
 
 	public void xMove(String move /* Computer object will run AlphaBetaSearch, which will provide a legal move */) {
@@ -207,8 +215,10 @@ public class Board {
 	 *  Print the board to the project's specifications
 	 */
 	public void print() {
-		System.out.println("  1 2 3 4 5 6 7 8");
+		//System.out.println("  1 2 3 4 5 6 7 8");
 
+		System.out.println("  1 2 3 4 5");
+		
 		for(int i = 0; i < BOARD_SIZE; i++) {
 			switch(i) {
 				case 0: System.out.print('A'); break;
@@ -231,6 +241,11 @@ public class Board {
 	public void print(Board[] boards) {
 		for(int i = 0; i < boards.length; i++) {
 			boards[i].print();
+			boards[i].updateLocations();
+			System.out.println("utility: " + boards[i].getUtilityValue());
+			System.out.println("X score: " + boards[i].getXScore());
+			System.out.println("O score: " + boards[i].getOScore());
+			System.out.println();
 		}
 	}
 	
@@ -256,17 +271,22 @@ public class Board {
 		return newBoard;
 	}
 
-	public Board[] generateSuccessors(int row, int col, boolean isOTurn){
+	public void generateSuccessors(boolean isMaximizingPlayer){
 		int counter = 0;
 		Board[] boards;
 		char currentChar;
+		int row, col;
 		
-		if(isOTurn == true) {
+		if(isMaximizingPlayer == false) {
 			boards = new Board[getOScore()];
 			currentChar = boardSymbols[3];
+			row = oRow;
+			col = oCol;
 		} else {
 			boards = new Board[getXScore()];
 			currentChar = boardSymbols[2];
+			row = xRow;
+			col = xCol;
 		}
 			
 		char[][] newCharBoard = clone(board);
@@ -331,8 +351,6 @@ public class Board {
 		
 
 		// horizontal successors
-
-		newCharBoard = board.clone();
 		
 		for(int i = row + 1; i < BOARD_SIZE; i++) {
 			if(board[i][col] == boardSymbols[0]) {
@@ -346,8 +364,6 @@ public class Board {
 			else
 				break;
 		}
-		
-		newCharBoard = board.clone();
 		
 		for(int i = row - 1; i >= 0; i--) {
 			if(board[i][col] == boardSymbols[0]) {
@@ -364,8 +380,6 @@ public class Board {
 		
 		// vertical successors
 		
-		newCharBoard = board.clone();
-		
 		for(int i = col + 1; i < BOARD_SIZE; i++) {
 			if(board[row][i] == boardSymbols[0]) {
 				newCharBoard = clone(board);
@@ -378,8 +392,6 @@ public class Board {
 			else
 				break;
 		}
-		
-		newCharBoard = board.clone();
 		
 		for(int i = col - 1; i >= 0; i--) {
 			if(board[row][i] == boardSymbols[0]) {
@@ -394,15 +406,33 @@ public class Board {
 				break;
 		}
 
-		return boards;
+		successors = boards;
+	}
+
+	/**
+	 * Update xRow, xCol, oRow, oCol
+	 */
+	private void updateLocations() {
+		for(int i = 0; i < BOARD_SIZE; i++) {
+			for(int j = 0; j < BOARD_SIZE; j++) {
+				if(board[i][j] == boardSymbols[2]) {
+					xRow = i;
+					xCol = j;
+				} else if(board[i][j] == boardSymbols[3]) {
+					oRow = i;
+					oCol = j;
+				}
+			}
+		}
+		
 	}
 
 	/**
 	 *  
-	 * @return the score for the O player given the current board state
+	 * @return the utility score for the board. X is the maximizing player.
 	 */
 	public int getUtilityValue() {
-		return getOScore() - getXScore(); // can add aggression later on
+		return getXScore() - getOScore(); // can add aggression later on
 	}
 
 	/**
@@ -420,7 +450,7 @@ public class Board {
 	 */
 	public int getXScore()
 	{
-		return getDiagonalValue(xRow,xCol) + getHorizontalValue(xRow, xCol) + getVerticalValue(xRow, xCol);
+		return getDiagonalValue(xRow, xCol) + getHorizontalValue(xRow, xCol) + getVerticalValue(xRow, xCol);
 	}
 
 	/**
@@ -435,39 +465,43 @@ public class Board {
 		
 		//going down and right
 		for(int i = row + 1, j = col + 1; i < BOARD_SIZE && j < BOARD_SIZE; i++, j++) {
-			if(board[i][j] == boardSymbols[0])
+			if(board[i][j] == boardSymbols[0]) {
 				counter++;
-			else
+				//System.out.println("d0 " + i + " " + j);
+			} else
 				break;
 		}
 		
-		//System.out.println(counter);
+		//System.out.println("butts");
 		
 		//going up and left
-		for(int i = row - 1, j = col - 1; i > 0 && j > 0; i--, j--) {
-			if(board[i][j] == boardSymbols[0])
+		for(int i = row - 1, j = col - 1; i >= 0 && j >= 0; i--, j--) {
+			if(board[i][j] == boardSymbols[0]) {
 				counter++;
-			else
+				//System.out.println("d1 " + i + " " + j);
+			} else
 				break;
 		}
 		
 		//System.out.println(counter);
 		
 		//going down and left
-		for(int i = row + 1, j = col - 1; i < BOARD_SIZE && j > 0; i++, j--) {
-			if(board[i][j] == boardSymbols[0])
+		for(int i = row + 1, j = col - 1; i < BOARD_SIZE && j >= 0; i++, j--) {
+			if(board[i][j] == boardSymbols[0]) {
 				counter++;
-			else
+				//System.out.println("d2 " + i + " " + j);				
+			} else
 				break;
 		}
 
 		//System.out.println(counter);
 		
 		//going up and right
-		for(int i = row - 1, j = col + 1; i > 0 && j < BOARD_SIZE; i--, j++) {
-			if(board[i][j] == boardSymbols[0])
+		for(int i = row - 1, j = col + 1; i >= 0 && j < BOARD_SIZE; i--, j++) {
+			if(board[i][j] == boardSymbols[0]) {
 				counter++;
-			else
+				//System.out.println("d3 " + i + " " + j);
+			} else
 				break;
 		}
 		
@@ -486,18 +520,20 @@ public class Board {
 	{
 		int counter = 0;
 		for(int i = row + 1; i < BOARD_SIZE; i++) {
-			if(board[i][col] == boardSymbols[0])
+			if(board[i][col] == boardSymbols[0]) {
 				counter++;
-			else
+				//System.out.println("v0");
+			} else
 				break;
 		}
 		
 		//System.out.println(counter);
 		
 		for(int i = row - 1; i >= 0; i--) {
-			if(board[i][col] == boardSymbols[0])
+			if(board[i][col] == boardSymbols[0]) {
 				counter++;
-			else
+				//System.out.println("v1");
+			} else
 				break;
 		}
 		
@@ -516,18 +552,20 @@ public class Board {
 	{
 		int counter = 0;
 		for(int i = col + 1; i < BOARD_SIZE; i++) {
-			if(board[row][i] == boardSymbols[0])
+			if(board[row][i] == boardSymbols[0]) {
 				counter++;
-			else
+				//System.out.println("h0");				
+			} else
 				break;
 		}
 		
 		//System.out.println(counter);
 		
 		for(int i = col - 1; i >= 0; i--) {
-			if(board[row][i] == boardSymbols[0])
+			if(board[row][i] == boardSymbols[0]) {
 				counter++;
-			else
+				//System.out.println("h1");
+			} else
 				break;
 		}
 		
