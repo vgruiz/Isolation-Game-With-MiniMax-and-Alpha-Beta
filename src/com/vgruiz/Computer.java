@@ -1,4 +1,21 @@
 package com.vgruiz;
+<<<<<<< HEAD
+=======
+
+//test change
+
+public class Computer {
+
+	Board[] successors;
+
+	public String AlphaBetaSearch(Board board) {
+		int v = MaxValue(board, Integer.MIN_VALUE, Integer.MAX_VALUE);
+
+		String move = getMove(v); //this will consider all moves with utility value v and randomly select one
+
+		return move;
+	}
+>>>>>>> master
 
 public class Computer {
 
