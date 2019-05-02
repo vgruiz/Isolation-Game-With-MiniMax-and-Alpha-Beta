@@ -1,8 +1,18 @@
 package com.vgruiz;
 
 public class Board {
-	final int BOARD_SIZE = 3;
+	final int BOARD_SIZE = 4;
 	
+	/**
+	 * An array of the states that were are in the decision tree to the chosen terminal state
+	 */
+	Board[] chosenStates = new Board[BOARD_SIZE * BOARD_SIZE];
+	
+	int chosenStatesCounter = 0;
+	
+	/**
+	 * Stores the successors of the current board state
+	 */
 	Board[] successors;
 	/**
 	 * As Computer.MinValue or .MaxValue returns v, the projected value will be passed to the parent board.
@@ -23,7 +33,7 @@ public class Board {
 	//positions for a new board
 	//initially at start positions as specified
 	int xRow = 0, xCol = 0; //X is computer
-	int oRow = 2, oCol = 2; //O is player
+	int oRow = BOARD_SIZE - 1, oCol = BOARD_SIZE - 1; //O is player
 
 	public Board() {
 		board = new char[BOARD_SIZE][BOARD_SIZE];
@@ -217,7 +227,7 @@ public class Board {
 	public void print() {
 		//System.out.println("  1 2 3 4 5 6 7 8");
 
-		System.out.println("  1 2 3 4 5");
+		System.out.println("  1 2 3 4");
 		
 		for(int i = 0; i < BOARD_SIZE; i++) {
 			switch(i) {
@@ -242,9 +252,10 @@ public class Board {
 		for(int i = 0; i < boards.length; i++) {
 			boards[i].print();
 			boards[i].updateLocations();
-			System.out.println("utility: " + boards[i].getUtilityValue());
-			System.out.println("X score: " + boards[i].getXScore());
-			System.out.println("O score: " + boards[i].getOScore());
+			System.out.println("projected value: " +  boards[i].projectedValue);
+			//System.out.println("utility: " + boards[i].getUtilityValue());
+			//System.out.println("X score: " + boards[i].getXScore());
+			//System.out.println("O score: " + boards[i].getOScore());
 			System.out.println();
 		}
 	}

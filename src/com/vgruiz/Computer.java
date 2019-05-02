@@ -1,21 +1,4 @@
 package com.vgruiz;
-<<<<<<< HEAD
-=======
-
-//test change
-
-public class Computer {
-
-	Board[] successors;
-
-	public String AlphaBetaSearch(Board board) {
-		int v = MaxValue(board, Integer.MIN_VALUE, Integer.MAX_VALUE);
-
-		String move = getMove(v); //this will consider all moves with utility value v and randomly select one
-
-		return move;
-	}
->>>>>>> master
 
 public class Computer {
 
@@ -29,15 +12,14 @@ public class Computer {
 		int v;
 		
 		if(isMaximizingPlayer) {
-			v = MaxValue(state, isMaximizingPlayer);			
+			v = MaxValue(state, Integer.MIN_VALUE, Integer.MAX_VALUE, isMaximizingPlayer);			
 		} else {
 			//if isMaximizingPlayer == false, start with MinValue for the O move
-			v = MinValue(state, isMaximizingPlayer);	
+			v = MinValue(state, Integer.MIN_VALUE, Integer.MAX_VALUE, isMaximizingPlayer);	
 		}
 		
-		//successors = state.generateSuccessors(false);
-		//state.generateSuccessors(false);
-		//state.print(state.successors);
+		//System.out.println("printing immediate successors");
+		//state.print(immediateSuccessors);
 		
 		Board selected = null;
 		
@@ -48,11 +30,13 @@ public class Computer {
 			}
 		}
 		
-		return selected; 
+		//return state;
+		return selected;
+		
+		//BUTTS
 	}
 	
-	public int MaxValue(Board state, boolean isMaximizingPlayer) {
-		//System.out.println("called MaxValue");
+	public int MaxValue(Board state, int alpha, int beta, boolean isMaximizingPlayer) {
 		
 		if (state.isTerminal()) {
 			int utilityValue = state.getUtilityValue();
@@ -64,22 +48,35 @@ public class Computer {
 		int v = Integer.MIN_VALUE;
 		
 		state.generateSuccessors(true);
-		//state.print(state.successors);
+//		System.out.println("Printing Successors");
+//		state.print(state.successors);
+//		System.out.println("Printing DONE");
+		
+		//System.exit(0);
 		
 		for(int i = 0; i < state.successors.length; i++) {
-			int minVal = MinValue(state.successors[i], isMaximizingPlayer);
+			int minVal = MinValue(state.successors[i], alpha, beta, isMaximizingPlayer);
 			state.successors[i].projectedValue = minVal;
 			v = Math.max(minVal, v);
+			
+			//new additions for alpha-beta
+			if(v >= beta) {
+				return v;
+			}
+			alpha = Math.max(alpha, v);
+			//end new additions
 		}
 		
+		/**
+		 * At this point, the 
+		 */
 		if(isMaximizingPlayer) {
 			immediateSuccessors = state.successors;
 		}
 		return v;
 	}
 	
-	public int MinValue(Board state, boolean isMaximizingPlayer) {
-		//System.out.println("called MinValue");
+	public int MinValue(Board state, int alpha, int beta, boolean isMaximizingPlayer) {
 		
 		if (state.isTerminal()) {
 			int utilityValue = state.getUtilityValue();
@@ -91,12 +88,19 @@ public class Computer {
 		int v = Integer.MAX_VALUE;
 		
 		state.generateSuccessors(false);
+		//System.out.println("Printing Successors");
 		//state.print(state.successors);
+		//System.out.println("Printing DONE");
 		
 		for(int i = 0; i < state.successors.length; i++) {
-			int maxVal = MaxValue(state.successors[i], isMaximizingPlayer);
+			int maxVal = MaxValue(state.successors[i], alpha, beta, isMaximizingPlayer);
 			state.successors[i].projectedValue = maxVal;
 			v = Math.min(maxVal, v);
+			
+			if(v <= alpha) {
+				return v;
+			}
+			beta = Math.min(beta, v);
 		}
 		
 		if(!isMaximizingPlayer) {
