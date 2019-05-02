@@ -1,7 +1,7 @@
 package com.vgruiz;
 
 public class Computer {
-
+	int cnt = 0;
 
 	/**
 	 * This stores the immediate successors of the current state, to choose the successor that's best for the current player.
@@ -18,25 +18,31 @@ public class Computer {
 			v = MinValue(state, Integer.MIN_VALUE, Integer.MAX_VALUE, isMaximizingPlayer);	
 		}
 		
+		//System.out.println(cnt);
+		
 		//System.out.println("printing immediate successors");
 		//state.print(immediateSuccessors);
 		
 		Board selected = null;
 		
-		//find value v in successors
+		//find value v in successors (NEEDS TO BE RANDOMIZED)
 		for(int i = 0; i < immediateSuccessors.length; i++) {
 			if (immediateSuccessors[i].projectedValue == v) {
 				selected = immediateSuccessors[i];
 			}
 		}
 		
-		//return state;
-		return selected;
+//		for(int i = 0; i < immediateSuccessors.length; i++) {
+//			System.out.println(immediateSuccessors[i].projectedValue);
+//		}
 		
-		//BUTTS
+		return state;
+		//return selected;
 	}
 	
 	public int MaxValue(Board state, int alpha, int beta, boolean isMaximizingPlayer) {
+		//cnt++;
+		//System.out.println(cnt);
 		
 		if (state.isTerminal()) {
 			int utilityValue = state.getUtilityValue();
@@ -56,11 +62,14 @@ public class Computer {
 		
 		for(int i = 0; i < state.successors.length; i++) {
 			int minVal = MinValue(state.successors[i], alpha, beta, isMaximizingPlayer);
-			state.successors[i].projectedValue = minVal;
+			//state.successors[i].projectedValue = minVal;
 			v = Math.max(minVal, v);
+			state.successors[i].projectedValue = v;
 			
 			//new additions for alpha-beta
 			if(v >= beta) {
+				//System.out.println("PRUNE v >= beta");
+				cnt++;
 				return v;
 			}
 			alpha = Math.max(alpha, v);
@@ -77,6 +86,9 @@ public class Computer {
 	}
 	
 	public int MinValue(Board state, int alpha, int beta, boolean isMaximizingPlayer) {
+		//cnt++;
+		//System.out.println(cnt);
+		
 		
 		if (state.isTerminal()) {
 			int utilityValue = state.getUtilityValue();
@@ -94,10 +106,13 @@ public class Computer {
 		
 		for(int i = 0; i < state.successors.length; i++) {
 			int maxVal = MaxValue(state.successors[i], alpha, beta, isMaximizingPlayer);
-			state.successors[i].projectedValue = maxVal;
+			//state.successors[i].projectedValue = maxVal;
 			v = Math.min(maxVal, v);
+			state.successors[i].projectedValue = v;
 			
 			if(v <= alpha) {
+				//System.out.println("PRUNE v <= alpha");
+				cnt++;
 				return v;
 			}
 			beta = Math.min(beta, v);
@@ -109,7 +124,13 @@ public class Computer {
 		return v;
 	}
 	
-	
+	public Board getNextState(Board state) {
+		
+		
+		
+		
+		return null;
+	}
 	
 	
 	

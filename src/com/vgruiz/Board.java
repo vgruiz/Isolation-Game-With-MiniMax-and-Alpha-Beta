@@ -1,14 +1,9 @@
 package com.vgruiz;
 
 public class Board {
-	final int BOARD_SIZE = 4;
+	final int BOARD_SIZE = 3;
 	
-	/**
-	 * An array of the states that were are in the decision tree to the chosen terminal state
-	 */
-	Board[] chosenStates = new Board[BOARD_SIZE * BOARD_SIZE];
 	
-	int chosenStatesCounter = 0;
 	
 	/**
 	 * Stores the successors of the current board state
@@ -363,34 +358,6 @@ public class Board {
 
 		// horizontal successors
 		
-		for(int i = row + 1; i < BOARD_SIZE; i++) {
-			if(board[i][col] == boardSymbols[0]) {
-				newCharBoard = clone(board);
-				newCharBoard[i][col] = currentChar;
-				newCharBoard[row][col] = boardSymbols[1];
-				Board newBoard = new Board(newCharBoard);
-				boards[counter] = newBoard;
-				counter++;
-			}
-			else
-				break;
-		}
-		
-		for(int i = row - 1; i >= 0; i--) {
-			if(board[i][col] == boardSymbols[0]) {
-				newCharBoard = clone(board);
-				newCharBoard[i][col] = currentChar;
-				newCharBoard[row][col] = boardSymbols[1];
-				Board newBoard = new Board(newCharBoard);
-				boards[counter] = newBoard;
-				counter++;
-			}
-			else
-				break;
-		}
-		
-		// vertical successors
-		
 		for(int i = col + 1; i < BOARD_SIZE; i++) {
 			if(board[row][i] == boardSymbols[0]) {
 				newCharBoard = clone(board);
@@ -408,6 +375,34 @@ public class Board {
 			if(board[row][i] == boardSymbols[0]) {
 				newCharBoard = clone(board);
 				newCharBoard[row][i] = currentChar;
+				newCharBoard[row][col] = boardSymbols[1];
+				Board newBoard = new Board(newCharBoard);
+				boards[counter] = newBoard;
+				counter++;
+			}
+			else
+				break;
+		}
+		
+		// vertical successors
+		
+		for(int i = row + 1; i < BOARD_SIZE; i++) {
+			if(board[i][col] == boardSymbols[0]) {
+				newCharBoard = clone(board);
+				newCharBoard[i][col] = currentChar;
+				newCharBoard[row][col] = boardSymbols[1];
+				Board newBoard = new Board(newCharBoard);
+				boards[counter] = newBoard;
+				counter++;
+			}
+			else
+				break;
+		}
+		
+		for(int i = row - 1; i >= 0; i--) {
+			if(board[i][col] == boardSymbols[0]) {
+				newCharBoard = clone(board);
+				newCharBoard[i][col] = currentChar;
 				newCharBoard[row][col] = boardSymbols[1];
 				Board newBoard = new Board(newCharBoard);
 				boards[counter] = newBoard;
