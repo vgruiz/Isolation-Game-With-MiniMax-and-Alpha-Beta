@@ -8,20 +8,15 @@ public class Computer {
 	 */
 	Board[] immediateSuccessors;
 
-	public Board MinimaxDecision(Board state, boolean isMaximizingPlayer) {
+	public Board MinimaxDecision(Board state, int depth, boolean isMaximizingPlayer) {
 		int v;
 		
 		if(isMaximizingPlayer) {
-			v = MaxValue(state, Integer.MIN_VALUE, Integer.MAX_VALUE, isMaximizingPlayer);			
+			v = MaxValue(state, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, isMaximizingPlayer);			
 		} else {
 			//if isMaximizingPlayer == false, start with MinValue for the O move
-			v = MinValue(state, Integer.MIN_VALUE, Integer.MAX_VALUE, isMaximizingPlayer);	
+			v = MinValue(state, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, isMaximizingPlayer);	
 		}
-		
-		//System.out.println(cnt);
-		
-		//System.out.println("printing immediate successors");
-		//state.print(immediateSuccessors);
 		
 		Board selected = null;
 		
@@ -32,19 +27,17 @@ public class Computer {
 			}
 		}
 		
-//		for(int i = 0; i < immediateSuccessors.length; i++) {
-//			System.out.println(immediateSuccessors[i].projectedValue);
-//		}
-		
 		return state;
 		//return selected;
 	}
 	
-	public int MaxValue(Board state, int alpha, int beta, boolean isMaximizingPlayer) {
+	public int MaxValue(Board state, int depth, int alpha, int beta, boolean isMaximizingPlayer) {
 		//cnt++;
 		//System.out.println(cnt);
 		
-		if (state.isTerminal()) {
+		state.generateSuccessors(true);
+		
+		if (depth == 0 || state.isTerminal()) {
 			int utilityValue = state.getUtilityValue();
 			//System.out.println("IS TERMINAL: " + utilityValue);
 			//state.print();
@@ -53,16 +46,10 @@ public class Computer {
 		
 		int v = Integer.MIN_VALUE;
 		
-		state.generateSuccessors(true);
-//		System.out.println("Printing Successors");
-//		state.print(state.successors);
-//		System.out.println("Printing DONE");
-		
-		//System.exit(0);
+		//state.generateSuccessors(true);
 		
 		for(int i = 0; i < state.successors.length; i++) {
-			int minVal = MinValue(state.successors[i], alpha, beta, isMaximizingPlayer);
-			//state.successors[i].projectedValue = minVal;
+			int minVal = MinValue(state.successors[i], depth - 1, alpha, beta, isMaximizingPlayer);
 			v = Math.max(minVal, v);
 			state.successors[i].projectedValue = v;
 			
@@ -85,12 +72,11 @@ public class Computer {
 		return v;
 	}
 	
-	public int MinValue(Board state, int alpha, int beta, boolean isMaximizingPlayer) {
-		//cnt++;
-		//System.out.println(cnt);
+	public int MinValue(Board state, int depth, int alpha, int beta, boolean isMaximizingPlayer) {
 		
+		state.generateSuccessors(false);
 		
-		if (state.isTerminal()) {
+		if (depth == 0 || state.isTerminal()) {
 			int utilityValue = state.getUtilityValue();
 			//System.out.println("IS TERMINAL: " + utilityValue);
 			//state.print();
@@ -99,14 +85,10 @@ public class Computer {
 		
 		int v = Integer.MAX_VALUE;
 		
-		state.generateSuccessors(false);
-		//System.out.println("Printing Successors");
-		//state.print(state.successors);
-		//System.out.println("Printing DONE");
+		//state.generateSuccessors(false);
 		
 		for(int i = 0; i < state.successors.length; i++) {
-			int maxVal = MaxValue(state.successors[i], alpha, beta, isMaximizingPlayer);
-			//state.successors[i].projectedValue = maxVal;
+			int maxVal = MaxValue(state.successors[i], depth - 1, alpha, beta, isMaximizingPlayer);
 			v = Math.min(maxVal, v);
 			state.successors[i].projectedValue = v;
 			

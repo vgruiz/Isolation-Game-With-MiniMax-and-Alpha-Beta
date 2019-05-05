@@ -21,13 +21,14 @@ public class Main {
 		System.out.println("starting minimax");
 		
 		//this board should now be the root node of the full tree
-		board = computer.MinimaxDecision(board, true);
+		board = computer.MinimaxDecision(board, 11, true);
 		
 		//board.print(board.successors);
 		
 		Board cur = board;
 		boolean maxPlay = true;
 		int testVal;
+		int c = 0;
 		
 		while(!cur.isTerminal()) {
 			if(maxPlay) {
@@ -35,6 +36,8 @@ public class Main {
 			} else {
 				testVal = Integer.MAX_VALUE;
 			}
+			
+			System.out.println(c++);
 			
 			for(int i = 0; i < cur.successors.length; i++) {
 				
