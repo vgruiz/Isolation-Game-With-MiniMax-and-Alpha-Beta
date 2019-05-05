@@ -132,6 +132,9 @@ public class Board {
 				if(board[oRow][i] == boardSymbols[1]) {
 					System.out.println("This move is invalid - crosses paths with #");
 					return false;
+				} else if(board[oRow][i] == boardSymbols[2]) {
+					System.out.println("This move is invalid - crosses paths with the opposing player");
+					return false;
 				}
 			}
 
@@ -153,6 +156,9 @@ public class Board {
 					//found a # symbol on the way to the new move or at the new location
 					System.out.println("This move is invalid - crosses paths with #");
 					return false;
+				} else if(board[i][oCol] == boardSymbols[2]) {
+					System.out.println("This move is invalid - crosses paths with the opposing player");
+					return false;
 				}
 			}
 
@@ -171,6 +177,9 @@ public class Board {
 						if(board[oRow + i][oCol + i] == boardSymbols[1]) {
 							System.out.println("This move is invalid - crosses paths with #");
 							return false;
+						} else if(board[oRow + i][oCol + i] == boardSymbols[2]) {
+							System.out.println("This move is invalid - crosses paths with the opposing player");
+							return false;
 						}
 					}
 
@@ -179,6 +188,9 @@ public class Board {
 					for(int i = 1; i < difference + 1; i++) {
 						if(board[oRow + i][oCol - i] == boardSymbols[1]) {
 							System.out.println("This move is invalid - crosses paths with #");
+							return false;
+						} else if(board[oRow + i][oCol - i] == boardSymbols[2]) {
+							System.out.println("This move is invalid - crosses paths with the opposing player");
 							return false;
 						}
 					}
@@ -191,6 +203,9 @@ public class Board {
 						if(board[oRow - i][oCol + i] == boardSymbols[1]) {
 							System.out.println("This move is invalid - crosses paths with #");
 							return false;
+						} else if(board[oRow - i][oCol + i] == boardSymbols[2]) {
+							System.out.println("This move is invalid - crosses paths with the opposing player");
+							return false;
 						}
 					}
 
@@ -199,6 +214,9 @@ public class Board {
 					for(int i = 1; i < difference + 1; i++) {
 						if(board[oRow - i][oCol - i] == boardSymbols[1]) {
 							System.out.println("This move is invalid - crosses paths with #");
+							return false;
+						} else if(board[oRow - i][oCol - i] == boardSymbols[2]) {
+							System.out.println("This move is invalid - crosses paths with the opposing player");
 							return false;
 						}
 					}

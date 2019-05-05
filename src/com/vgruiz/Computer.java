@@ -9,7 +9,7 @@ public class Computer {
 	long startTime;
 	long curTime;
 	double diffTime;
-	double TIME_LIMIT = 10.0;
+	double TIME_LIMIT = 20.0;
 	
 	/**
 	 * Get's assigned the next move from the root node and gets updated for each iteration of MinimaxDecision at different depths

@@ -6,6 +6,8 @@ import java.util.Scanner;
 public class Main {
 
 	static Scanner scanner = new Scanner(System.in);
+	static Computer computer;
+	static double timeLimit;
 
 	public static void main(String[] args) {
 		/**
@@ -14,7 +16,6 @@ public class Main {
 		 */
 		boolean gameMode = false;
 		
-		Computer computer;	
 		Board board = new Board();
 		System.out.println("INITIAL BOARD:");
 		board.print();
@@ -25,13 +26,16 @@ public class Main {
 			Board cur = board;
 			Boolean maxPlayer = true;
 			while(!cur.isTerminal()) {
-				computer = new Computer();
-				cur = new Board(cur.board);
-				cur = computer.MinimaxIterativeDeepening(cur, maxPlayer);
-				System.out.println("Chosen move: ");
-				cur.print();
-				computer = null; //to free up all of the memory computer uses, trying to avoid an OutOfMemoryError
-				System.gc();
+				cur = computerMove(cur, maxPlayer);
+				
+//				computer = new Computer();
+//				cur = new Board(cur.board);
+//				cur = computer.MinimaxIterativeDeepening(cur, maxPlayer);
+//				System.out.println("Chosen move: ");
+//				cur.print();
+//				computer = null; //to free up all of the memory computer uses, trying to avoid an OutOfMemoryError
+//				System.gc();
+
 				maxPlayer = !maxPlayer;
 			}
 			
@@ -44,35 +48,73 @@ public class Main {
 			
 			//get player order
 			System.out.println("Who goes first? C for computer, O for opponent.");
-			String firstPlayer = scanner.next();
+			char firstPlayer = scanner.next().charAt(0);
+			/**
+			 * if Grant is going first, my program should initially
+			 * be waiting for a move input.
+			 */
 			
 			//get time limit
 			System.out.println("Enter a time limit:");
-			double timeLimit = scanner.nextDouble();	
+			timeLimit = scanner.nextDouble();
 			
-			while(!cur.isTerminal()) {
-				computer = new Computer(timeLimit);
-				cur = new Board(cur.board);
-				System.out.println("Computer turn...");
-				cur = computer.MinimaxIterativeDeepening(cur, maxPlayer);
-				cur.print();
-				computer = null;
-				System.gc();
-
-				System.out.println("Human turn...");
-				while(!cur.oMove(getMove())) {
-					//this is so the getMove() function repeats until there is a valid move
+			
+			if(firstPlayer == 'c') {
+				while(!cur.isTerminal()) {
+					cur = computerMove(cur, maxPlayer);
+					playerMove(cur);					
 				}
-				cur.print();
+			} else {
+				while(!cur.isTerminal()) {
+					playerMove(cur);
+					cur = computerMove(cur, maxPlayer);
+				}
 			}
 			
+//			while(!cur.isTerminal()) {
+//				computer = new Computer(timeLimit);
+//				cur = new Board(cur.board);
+//				System.out.println("Computer turn...");
+//				cur = computer.MinimaxIterativeDeepening(cur, maxPlayer);
+//				cur.print();
+//				computer = null;
+//				System.gc();
+//
+//				System.out.println("Human turn...");
+//				while(!cur.oMove(getMove())) {
+//					//this is so the getMove() function repeats until there is a valid move
+//				}
+//				cur.print();
+//			}
+			
+			System.out.println("done");
 		}
-		
-		System.out.println("done");
-		
 		
 	}
 
+	public static Board computerMove(Board board, boolean maxPlayer) {
+		Board cur = board;
+		computer = new Computer(timeLimit);
+		cur = new Board(cur.board);
+		
+		System.out.println("Computer turn...");
+		cur = computer.MinimaxIterativeDeepening(cur, maxPlayer);
+		cur.print();
+		computer = null;
+		System.gc();
+		return cur;
+	}
+	
+	public static void playerMove(Board board) {
+		Board cur = board;
+		
+		System.out.println("Human turn...");
+		while(!cur.oMove(getMove())) {
+			//this is so the getMove() function repeats until there is a valid move
+		}
+		cur.print();
+	}
+	
 	public static String getMove() {
 		System.out.print("Enter move: ");
 		String move = scanner.next();
