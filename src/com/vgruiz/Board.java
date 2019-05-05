@@ -50,7 +50,7 @@ public class Board {
 		updateLocations();
 	}
 
-	public void xMove(String move /* Computer object will run AlphaBetaSearch, which will provide a legal move */) {
+	public void xMove(String move /* Computer object will run Minimax, which will provide a legal move */) {
 		board[xRow][xCol] = boardSymbols[1]; //old position to be marked with a # symbol
 
 		//interpret move string
@@ -78,6 +78,7 @@ public class Board {
 		//interpret string, determine new row and col
 		int tmpRow = -1, tmpCol = -1;
 
+		//to store the letter and number of the move in separate items
 		char[] moveArray = move.toCharArray();
 
 		switch(moveArray[0]) {
@@ -124,8 +125,9 @@ public class Board {
 
 			//perform a check for # at each location
 			for(int i = low; i < high - low; i++) {
+
+				//found a # symbol on the way to the new move or at the new location
 				if(board[oRow][i] == boardSymbols[1]) {
-					//found a # symbol on the way to the new move or at the new location
 					System.out.println("This move is invalid - crosses paths with #");
 					return;
 				}

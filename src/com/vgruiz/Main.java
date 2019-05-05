@@ -5,23 +5,73 @@ import java.util.Scanner;
 
 public class Main {
 
+	static Scanner scanner = new Scanner(System.in);
+
 	public static void main(String[] args) {
-		Computer computer = new Computer();		
+		/**
+		 * true = two computer players against themselves
+		 * false = human player vs computer
+		 */
+		boolean gameMode = false;
+		
+		Computer computer;	
 		Board board = new Board();
+		System.out.println("INITIAL BOARD:");
 		board.print();
 		
-		System.out.println("starting minimax");
-		
-		//this board should now be the root node of the full tree
-		board = computer.MinimaxIterativeDeepening(board, true);
-		
-		board.print();
+		//System.out.println("starting minimax");
+		if(gameMode == true) {
+			
+			Board cur = board;
+			Boolean maxPlayer = true;
+			while(!cur.isTerminal()) {
+				computer = new Computer();
+				cur = new Board(cur.board);
+				cur = computer.MinimaxIterativeDeepening(cur, maxPlayer);
+				System.out.println("Chosen move: ");
+				cur.print();
+				computer = null; //to free up all of the memory computer uses, trying to avoid an OutOfMemoryError
+				System.gc();
+				maxPlayer = !maxPlayer;
+			}
+			
+			System.out.println("done");
+			
+		} else {
+			//computer = new Computer();
+			Board cur = board;
+			Boolean maxPlayer = true;
+			
+			//get player order
+			System.out.println("Who goes first? C for computer, O for opponent.");
+			String firstPlayer = scanner.next();
+			
+			//get time limit
+			System.out.println("Enter a time limit:");
+			double timeLimit = scanner.nextDouble();	
+			computer = new Computer(timeLimit);
+			
+			while(!cur.isTerminal()) {
+				System.out.println("Computer goes: ");
+				cur = computer.MinimaxIterativeDeepening(cur, maxPlayer);
+				cur.print();
+
+				System.out.println("Human goes: ");
+				cur.oMove(getMove());
+				cur.print();
+			}
+			
+			
+			
+			
+		}
 		
 		System.out.println("done");
+		
+		
 	}
 
 	public static String getMove() {
-		Scanner scanner = new Scanner(System.in);
 		System.out.print("Enter move: ");
 		String move = scanner.next();
 

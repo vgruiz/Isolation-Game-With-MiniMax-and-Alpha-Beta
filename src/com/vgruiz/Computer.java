@@ -4,36 +4,53 @@ import java.util.Random;
 
 public class Computer {
 	int cnt = 0;
-
-	/**
-	 * This stores the immediate successors of the current state, to choose the successor that's best for the current player.
-	 */
-	Board[] immediateSuccessors;
 	int[] chosenStates;
 	int chosenStatesCounter;
 	long startTime;
 	long curTime;
 	double diffTime;
+	double TIME_LIMIT = 10.0;
 	
 	/**
 	 * Get's assigned the next move from the root node and gets updated for each iteration of MinimaxDecision at different depths
 	 */
 	Board nextState;
 	
+	/**
+	 * default constructor
+	 */
+	public Computer() {
+		
+	}
+	
+	/**
+	 * constructor to explicitly set the time limit
+	 * @param timeLimitSeconds
+	 */
+	public Computer(double timeLimitSeconds) {
+		TIME_LIMIT = timeLimitSeconds;
+	}
+	
+	/**
+	 * Runs MinimaxDecision and iterates the depth
+	 * @param state
+	 * @param isMaximizingPlayer
+	 * @return
+	 */
 	public Board MinimaxIterativeDeepening(Board state, boolean isMaximizingPlayer) {
 		startTime = System.currentTimeMillis();
 		Board cur = state;		
 		
-//		try {
+		try {
 			for(int i = 0; i < 20; i++) {
-				cur = MinimaxDecision(cur, i, true);
+				cur = MinimaxDecision(cur, i, isMaximizingPlayer);
 			}
-//		} catch (NullPointerException n) {
-//			System.out.println("NullPointerException caught, returning the best nextState.");
-//			return nextState;
-//		}
+		} catch (NullPointerException n) {
+			System.out.println("NullPointerException caught, returning the best nextState.");
+			return nextState;
+		}
 		
-		return cur;
+		return nextState;
 	}
 	
 	public Board MinimaxDecision(Board state, int depth, boolean isMaximizingPlayer) {
@@ -46,17 +63,15 @@ public class Computer {
 			v = MinValue(state, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, isMaximizingPlayer);	
 		}
 		
-		chosenStates = new int[state.BOARD_SIZE * state.BOARD_SIZE];
+		chosenStates = new int[state.BOARD_SIZE * 3];
 		chosenStatesCounter = 0;
 		
-		///////////////////////
 		//at this point, state should represent the root node of a complete tree
-		///////////////////////
 		Board cur = state;
 		boolean maxPlayer = isMaximizingPlayer;
 		int testVal;
 		
-		int d = depth;
+		int d = depth; //to not interfere on the original depth value
 		
 		while(!cur.isTerminal() && d > 0) {
 			d--;
@@ -140,10 +155,10 @@ public class Computer {
 		}
 		
 		//printing the results and returning the deepest chosen state
-		System.out.println("Printing path thus far: ");
+		//System.out.println("Printing path thus far: ");
 		Board current = state;
 		for(int i = 0; i < chosenStatesCounter; i++) {
-			current.successors[chosenStates[i]].print();
+			//current.successors[chosenStates[i]].print();
 			
 			//saving the next move (from the root node) from this Minimax run
 			if(i + 1 == chosenStatesCounter) {
@@ -160,7 +175,7 @@ public class Computer {
 		curTime = System.currentTimeMillis();
 		diffTime = (curTime - startTime)/1000.0;
 		
-		if (depth == 0 || state.isTerminal() || diffTime > 20) {
+		if (depth == 0 || state.isTerminal() || diffTime > TIME_LIMIT) {
 			if(diffTime > 19) {
 				//System.out.println(diffTime);
 			}
@@ -190,7 +205,7 @@ public class Computer {
 		curTime = System.currentTimeMillis();
 		diffTime = (curTime - startTime)/1000.0;
 		
-		if (depth == 0 || state.isTerminal() || diffTime > 20) {
+		if (depth == 0 || state.isTerminal() || diffTime > TIME_LIMIT) {
 			if(diffTime > 19) {
 				//System.out.println(diffTime);
 			}
