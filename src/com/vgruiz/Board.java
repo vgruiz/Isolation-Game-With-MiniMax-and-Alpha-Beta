@@ -245,7 +245,7 @@ public class Board {
 		for(int i = 0; i < boards.length; i++) {
 			boards[i].print();
 			boards[i].updateLocations();
-			System.out.println("projected value: " +  boards[i].projectedValue);
+			//System.out.println("projected value: " +  boards[i].projectedValue);
 			//System.out.println("utility: " + boards[i].getUtilityValue());
 			//System.out.println("X score: " + boards[i].getXScore());
 			//System.out.println("O score: " + boards[i].getOScore());

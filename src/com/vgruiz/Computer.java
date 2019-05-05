@@ -1,5 +1,7 @@
 package com.vgruiz;
 
+import java.util.Random;
+
 public class Computer {
 	int cnt = 0;
 
@@ -10,6 +12,8 @@ public class Computer {
 	int[] chosenStates;
 	int chosenStatesCounter;
 	long startTime;
+	long curTime;
+	double diffTime;
 	
 	/**
 	 * Get's assigned the next move from the root node and gets updated for each iteration of MinimaxDecision at different depths
@@ -20,10 +24,15 @@ public class Computer {
 		startTime = System.currentTimeMillis();
 		Board cur = state;		
 		
-		for(int i = 0; i < 20; i++) {
-			cur = MinimaxDecision(cur, i, true);
-			System.out.println("________________________" + i);
-		}
+//		try {
+			for(int i = 0; i < 20; i++) {
+				cur = MinimaxDecision(cur, i, true);
+				System.out.println("________________"+diffTime+"________" + i);
+			}
+//		} catch (NullPointerException n) {
+//			System.out.println("NullPointerException caught, returning the best nextState.");
+//			return nextState;
+//		}
 		
 		return cur;
 	}
@@ -58,7 +67,7 @@ public class Computer {
 				testVal = Integer.MAX_VALUE;
 			}
 			
-			//if maxPlayer, find the max projected value in it's successors and set it to testVAl
+			//if maxPlayer, find the max projected value in it's successors and set it to testVal
 			//if !maxPlayer, find the min "						"
 			for(int i = 0; i < cur.successors.length; i++) {
 				if(maxPlayer) {
@@ -80,17 +89,57 @@ public class Computer {
 				}
 			}
 			
+			//count how many projectedValues are the same as testVal
+			//pick a random int between zero and the value above
+			//search through the successors again, and every time you come across a value equal to testVal, increment a counter until 
+			//it equals the random int, then assign that
+//			Random random = new Random();
+//			int numOptions = 0;
+//			
+//			for(int i = 0; i < cur.successors.length; i++) {
+//				if(cur.successors[i].projectedValue == testVal) {
+//					numOptions++;
+//				}
+//			}
+//			
+//			int randomInt = random.nextInt(numOptions) + 1; //+1 because the next loop increments on the first encounter
+//			
+//			int cnt = 0;
+//			for(int i = 0; i < cur.successors.length; i++) {
+//				
+//				if(cur.successors[i].projectedValue == testVal) {
+//					cnt++; //counting how many times we come across a projectedValue == testVal
+//					if(cnt == randomInt) {
+//						//System.out.println("Selected Random Next State: " + cnt);
+//						chosenStates[chosenStatesCounter] = i;
+//						chosenStatesCounter++;
+//						
+//						//System.out.println("HEREHEREHERE");
+//						
+//						cur.print(cur.successors);
+//						
+//						cur = cur.successors[i];
+//						if(cur.successors==null)
+//						{
+//							System.out.println("failed");
+//						}
+//						break;
+//					}
+//				}
+//			}
+			
+			
 			maxPlayer = !maxPlayer;
 			
 		}
 		
 		//printing the results and returning the deepest chosen state
-
 		Board current = state;
 		for(int i = 0; i < chosenStatesCounter; i++) {
 			current.successors[chosenStates[i]].print();
+			//saving the next move (from the root node) from this Minimax run
 			if(i + 1 == chosenStatesCounter) {
-				nextState = current.successors[chosenStates[0]];
+				nextState = state.successors[chosenStates[0]];
 			}
 			current = current.successors[chosenStates[i]];
 		}
@@ -100,12 +149,12 @@ public class Computer {
 	}
 	
 	public int MaxValue(Board state, int depth, int alpha, int beta, boolean isMaximizingPlayer) {
-		long curTime = System.currentTimeMillis();
-		double diffTime = (curTime - startTime)/1000;
+		curTime = System.currentTimeMillis();
+		diffTime = (curTime - startTime)/1000.0;
 		
 		if (depth == 0 || state.isTerminal() || diffTime > 20) {
 			if(diffTime > 19) {
-				System.out.println(diffTime);
+				//System.out.println(diffTime);
 			}
 			return state.getUtilityValue();
 		}
@@ -130,12 +179,12 @@ public class Computer {
 	}
 	
 	public int MinValue(Board state, int depth, int alpha, int beta, boolean isMaximizingPlayer) {
-		long curTime = System.currentTimeMillis();
-		double diffTime = (curTime - startTime)/1000;
+		curTime = System.currentTimeMillis();
+		diffTime = (curTime - startTime)/1000.0;
 		
 		if (depth == 0 || state.isTerminal() || diffTime > 20) {
 			if(diffTime > 19) {
-				System.out.println(diffTime);
+				//System.out.println(diffTime);
 			}
 			return state.getUtilityValue();
 		}
