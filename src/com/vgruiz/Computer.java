@@ -1,137 +1,233 @@
 package com.vgruiz;
 
+import java.util.Random;
+
 public class Computer {
 	int cnt = 0;
-
+	int[] chosenStates;
+	int chosenStatesCounter;
+	long startTime;
+	long curTime;
+	double diffTime;
+	double TIME_LIMIT = 20.0;
+	
 	/**
-	 * This stores the immediate successors of the current state, to choose the successor that's best for the current player.
+	 * Get's assigned the next move from the root node and gets updated for each iteration of MinimaxDecision at different depths
 	 */
-	Board[] immediateSuccessors;
-
-	public Board MinimaxDecision(Board state, boolean isMaximizingPlayer) {
+	Board nextState;
+	
+	/**
+	 * default constructor
+	 */
+	public Computer() {
+		
+	}
+	
+	/**
+	 * constructor to explicitly set the time limit
+	 * @param timeLimitSeconds
+	 */
+	public Computer(double timeLimitSeconds) {
+		TIME_LIMIT = timeLimitSeconds;
+	}
+	
+	/**
+	 * Runs MinimaxDecision and iterates the depth
+	 * @param state
+	 * @param isMaximizingPlayer
+	 * @return
+	 */
+	public Board MinimaxIterativeDeepening(Board state, boolean isMaximizingPlayer) {
+		startTime = System.currentTimeMillis();
+		Board cur = state;		
+		
+		try {
+			for(int i = 0; i < 20; i++) {
+				cur = MinimaxDecision(cur, i, isMaximizingPlayer);
+			}
+		} catch (NullPointerException n) {
+			System.out.println("NullPointerException caught, returning the best nextState.");
+			return nextState;
+		}
+		
+		return nextState;
+	}
+	
+	public Board MinimaxDecision(Board state, int depth, boolean isMaximizingPlayer) {
 		int v;
 		
 		if(isMaximizingPlayer) {
-			v = MaxValue(state, Integer.MIN_VALUE, Integer.MAX_VALUE, isMaximizingPlayer);			
+			v = MaxValue(state, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, isMaximizingPlayer);			
 		} else {
 			//if isMaximizingPlayer == false, start with MinValue for the O move
-			v = MinValue(state, Integer.MIN_VALUE, Integer.MAX_VALUE, isMaximizingPlayer);	
+			v = MinValue(state, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, isMaximizingPlayer);	
 		}
 		
-		//System.out.println(cnt);
+		chosenStates = new int[state.BOARD_SIZE * 3];
+		chosenStatesCounter = 0;
 		
-		//System.out.println("printing immediate successors");
-		//state.print(immediateSuccessors);
+		//at this point, state should represent the root node of a complete tree
+		Board cur = state;
+		boolean maxPlayer = isMaximizingPlayer;
+		int testVal;
 		
-		Board selected = null;
+		int d = depth; //to not interfere on the original depth value
 		
-		//find value v in successors (NEEDS TO BE RANDOMIZED)
-		for(int i = 0; i < immediateSuccessors.length; i++) {
-			if (immediateSuccessors[i].projectedValue == v) {
-				selected = immediateSuccessors[i];
+		while(!cur.isTerminal() && d > 0) {
+			d--;
+			
+			//setting the initial testVal based on which players turn it is
+			if(maxPlayer) {
+				testVal = Integer.MIN_VALUE;
+			} else {
+				testVal = Integer.MAX_VALUE;
 			}
+			
+			//if maxPlayer, find the max projected value in it's successors and set it to testVal
+			//if !maxPlayer, find the min "						"
+			for(int i = 0; i < cur.successors.length; i++) {
+				if(maxPlayer) {
+					testVal = Math.max(testVal, cur.successors[i].projectedValue);
+				} else {
+					testVal = Math.min(testVal, cur.successors[i].projectedValue);
+				}
+			}
+			
+			//finding the first successor with projectedValue == testVal
+			//putting the index of that successor in the chosenStates array
+			//setting cur to that successor
+			for(int i = 0; i < cur.successors.length; i++) {
+				if(cur.successors[i].projectedValue == testVal) {
+					chosenStates[chosenStatesCounter] = i;
+					chosenStatesCounter++;
+					cur = cur.successors[i];
+					break;
+				}
+			}
+			
+			//count how many projectedValues are the same as testVal
+			//pick a random int between zero and the value above
+			//search through the successors again, and every time you come across a value equal to testVal, increment a counter until 
+			//it equals the random int, then assign that
+//			Random random = new Random();
+//			int numOptions = 0;
+//			
+//			for(int i = 0; i < cur.successors.length; i++) {
+//				if(cur.successors[i].projectedValue == testVal) {
+//					numOptions++;
+//				}
+//			}
+//			
+//			int randomInt = random.nextInt(numOptions) + 1; //+1 because the next loop increments on the first encounter
+//			
+//			int cnt = 0;
+//			for(int i = 0; i < cur.successors.length; i++) {
+//				
+//				if(cur.successors[i].projectedValue == testVal) {
+//					cnt++; //counting how many times we come across a projectedValue == testVal
+//					if(cnt == randomInt) {
+//						chosenStates[chosenStatesCounter] = i;
+//						chosenStatesCounter++;
+//						
+//						//cur.print(cur.successors);
+//						
+//						if(d == 0) {
+//							System.out.println("d == 0");
+//							break;
+//						}
+//						cur = cur.successors[i];
+//						if(cur.successors==null)
+//						{
+//							System.out.println("failed");
+//						}
+//						break;
+//					}
+//				}
+//			}
+			
+//			if(cur.successors == null) {
+//				System.out.println("depth = " + depth);
+//				break;
+//			}
+			
+			maxPlayer = !maxPlayer;
+			
 		}
 		
-//		for(int i = 0; i < immediateSuccessors.length; i++) {
-//			System.out.println(immediateSuccessors[i].projectedValue);
-//		}
+		//printing the results and returning the deepest chosen state
+		//System.out.println("Printing path thus far: ");
+		Board current = state;
+		for(int i = 0; i < chosenStatesCounter; i++) {
+			//current.successors[chosenStates[i]].print();
+			
+			//saving the next move (from the root node) from this Minimax run
+			if(i + 1 == chosenStatesCounter) {
+				nextState = state.successors[chosenStates[0]];
+			}
+			current = current.successors[chosenStates[i]];
+		}
 		
 		return state;
 		//return selected;
 	}
 	
-	public int MaxValue(Board state, int alpha, int beta, boolean isMaximizingPlayer) {
-		//cnt++;
-		//System.out.println(cnt);
+	public int MaxValue(Board state, int depth, int alpha, int beta, boolean isMaximizingPlayer) {
+		curTime = System.currentTimeMillis();
+		diffTime = (curTime - startTime)/1000.0;
 		
-		if (state.isTerminal()) {
-			int utilityValue = state.getUtilityValue();
-			//System.out.println("IS TERMINAL: " + utilityValue);
-			//state.print();
-			return utilityValue;
+		if (depth == 0 || state.isTerminal() || diffTime > TIME_LIMIT) {
+			if(diffTime > 19) {
+				//System.out.println(diffTime);
+			}
+			return state.getUtilityValue();
 		}
 		
 		int v = Integer.MIN_VALUE;
-		
 		state.generateSuccessors(true);
-//		System.out.println("Printing Successors");
-//		state.print(state.successors);
-//		System.out.println("Printing DONE");
-		
-		//System.exit(0);
 		
 		for(int i = 0; i < state.successors.length; i++) {
-			int minVal = MinValue(state.successors[i], alpha, beta, isMaximizingPlayer);
-			//state.successors[i].projectedValue = minVal;
+			int minVal = MinValue(state.successors[i], depth - 1, alpha, beta, isMaximizingPlayer);
 			v = Math.max(minVal, v);
 			state.successors[i].projectedValue = v;
 			
 			//new additions for alpha-beta
 			if(v >= beta) {
-				//System.out.println("PRUNE v >= beta");
-				cnt++;
 				return v;
 			}
 			alpha = Math.max(alpha, v);
 			//end new additions
 		}
 		
-		/**
-		 * At this point, the 
-		 */
-		if(isMaximizingPlayer) {
-			immediateSuccessors = state.successors;
-		}
 		return v;
 	}
 	
-	public int MinValue(Board state, int alpha, int beta, boolean isMaximizingPlayer) {
-		//cnt++;
-		//System.out.println(cnt);
+	public int MinValue(Board state, int depth, int alpha, int beta, boolean isMaximizingPlayer) {
+		curTime = System.currentTimeMillis();
+		diffTime = (curTime - startTime)/1000.0;
 		
-		
-		if (state.isTerminal()) {
-			int utilityValue = state.getUtilityValue();
-			//System.out.println("IS TERMINAL: " + utilityValue);
-			//state.print();
-			return utilityValue;
+		if (depth == 0 || state.isTerminal() || diffTime > TIME_LIMIT) {
+			if(diffTime > 19) {
+				//System.out.println(diffTime);
+			}
+			return state.getUtilityValue();
 		}
 		
 		int v = Integer.MAX_VALUE;
-		
 		state.generateSuccessors(false);
-		//System.out.println("Printing Successors");
-		//state.print(state.successors);
-		//System.out.println("Printing DONE");
 		
 		for(int i = 0; i < state.successors.length; i++) {
-			int maxVal = MaxValue(state.successors[i], alpha, beta, isMaximizingPlayer);
-			//state.successors[i].projectedValue = maxVal;
+			int maxVal = MaxValue(state.successors[i], depth - 1, alpha, beta, isMaximizingPlayer);
 			v = Math.min(maxVal, v);
 			state.successors[i].projectedValue = v;
 			
 			if(v <= alpha) {
-				//System.out.println("PRUNE v <= alpha");
-				cnt++;
 				return v;
 			}
 			beta = Math.min(beta, v);
 		}
 		
-		if(!isMaximizingPlayer) {
-			immediateSuccessors = state.successors;
-		}
 		return v;
 	}
-	
-	public Board getNextState(Board state) {
-		
-		
-		
-		
-		return null;
-	}
-	
 	
 	
 	

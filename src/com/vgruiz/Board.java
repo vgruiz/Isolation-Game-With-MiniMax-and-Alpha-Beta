@@ -1,7 +1,7 @@
 package com.vgruiz;
 
 public class Board {
-	final int BOARD_SIZE = 3;
+	final int BOARD_SIZE = 8;
 	
 	
 	
@@ -50,36 +50,188 @@ public class Board {
 		updateLocations();
 	}
 
-	public void xMove(String move /* Computer object will run AlphaBetaSearch, which will provide a legal move */) {
-		board[xRow][xCol] = boardSymbols[1]; //old position to be marked with a # symbol
-
-		//interpret move string
+	public boolean manualMove(boolean isX, String move) {
+		
+		//set curRow and curCol
+		int curRow, curCol;
+		char opposingPlayer;
+		if(isX) {
+			curRow = xRow;
+			curCol = xCol;
+			opposingPlayer = boardSymbols[3];
+		} else {
+			curRow = oRow;
+			curCol = oCol;
+			opposingPlayer = boardSymbols[2];
+		}
+		
+		//interpret move string, determine new row and col
+		int tmpRow = -1, tmpCol = -1;
 		char[] moveArray = move.toCharArray();
-
 		switch(moveArray[0]) {
-			case 'A': xRow = 0; break;
-			case 'B': xRow = 1; break;
-			case 'C': xRow = 2; break;
-			case 'D': xRow = 3; break;
-			case 'E': xRow = 4; break;
-			case 'F': xRow = 5; break;
-			case 'G': xRow = 6; break;
-			case 'H': xRow = 7; break;
+			case 'A': tmpRow = 0; break;
+			case 'B': tmpRow = 1; break;
+			case 'C': tmpRow = 2; break;
+			case 'D': tmpRow = 3; break;
+			case 'E': tmpRow = 4; break;
+			case 'F': tmpRow = 5; break;
+			case 'G': tmpRow = 6; break;
+			case 'H': tmpRow = 7; break;
+		}
+		
+		tmpCol = Character.getNumericValue(moveArray[1]) - 1;
+		
+		//determines if the new move is valid
+		//make sure it is not in the exact same spot or in the spot of the opponent
+		if(oRow == tmpRow && oCol == tmpCol || xRow == tmpRow && xCol == tmpCol) {
+			System.out.println("This move is invalid - there is a player already in that location");
+			return false;
 		}
 
-		xCol = Character.getNumericValue(moveArray[1]) - 1;
+		//check if it is a valid direction
+		if(!((curRow == tmpRow) /*horizontal move*/ ||
+				(curCol == tmpCol) /*vertical move*/ ||
+				(Math.abs(tmpRow - curRow) == Math.abs(tmpCol - curCol)) /*diagonal move*/ )) {
+			System.out.println("This move is invalid - move is not in a valid direction");
+			return false;
+		}
+	
+		//check that it does not cross or land on an already used space, #
+		if(curRow == tmpRow) { //if curRow == tmpRow, this is a horizontal move
 
-		//perform changes to board
-		board[xRow][xCol] = boardSymbols[2];
+			//go from smallest row to largest row
+			int low, high;
+			if(curCol < tmpCol){
+				low = curCol;
+				high = tmpCol;
+			} else {
+				low = tmpCol;
+				high = curCol;
+			}
 
+			//perform a check for # at each location
+			for(int i = low; i < low + (high - low) + 1; i++) {
+
+				//found a # symbol on the way to the new move or at the new location
+				if(board[curRow][i] == boardSymbols[1]) {
+					System.out.println("This move is invalid - crosses paths with #");
+					return false;
+				} else if(board[curRow][i] == opposingPlayer) {
+					System.out.println("This move is invalid - crosses paths with the opposing player");
+					return false;
+				}
+			}
+		} else if(curCol == tmpCol) { //if oCol == tmpCol, this is a vertical move
+
+			//go from smallest col to largest col
+			int low, high;
+			if(curRow < tmpRow) {
+				low = curRow; //0
+				high = tmpRow; //7
+			} else {
+				low = tmpRow;
+				high = curRow;
+			}
+
+			//perform a check for # at each location
+			for(int i = low; i < low + (high - low) + 1; i++) {
+				if(board[i][curCol] == boardSymbols[1]) {
+					//found a # symbol on the way to the new move or at the new location
+					System.out.println("This move is invalid - crosses paths with #");
+					return false;
+				} else if(board[i][curCol] == opposingPlayer) {
+					System.out.println("This move is invalid - crosses paths with the opposing player");
+					return false;
+				}
+			}
+
+		} else if(Math.abs(tmpRow - curRow) == Math.abs(tmpCol - curCol)) {
+			int difference = Math.abs(tmpRow - curRow);
+
+			//determine direction of movement
+			boolean rowSign = (tmpRow - curRow) > 0; //going in the direction towards tmpRow, is tmpRow at a greater row than the current position oRow. true +, false -
+			boolean colSign = (tmpCol - curCol) > 0;
+
+			//check for # in that direction only
+			if(rowSign) {
+				if(colSign) {	// (+, +)
+
+					for(int i = 1; i < difference + 1; i++) {
+						if(board[curRow + i][curCol + i] == boardSymbols[1]) {
+							System.out.println("This move is invalid - crosses paths with #");
+							return false;
+						} else if(board[curRow + i][curCol + i] == boardSymbols[2]) {
+							System.out.println("This move is invalid - crosses paths with the opposing player");
+							return false;
+						}
+					}
+
+				} else {		// (+, -)
+
+					for(int i = 1; i < difference + 1; i++) {
+						if(board[curRow + i][curCol - i] == boardSymbols[1]) {
+							System.out.println("This move is invalid - crosses paths with #");
+							return false;
+						} else if(board[curRow + i][curCol - i] == boardSymbols[2]) {
+							System.out.println("This move is invalid - crosses paths with the opposing player");
+							return false;
+						}
+					}
+
+				}
+			} else {
+				if(colSign) {	// (-, +)
+
+					for(int i = 1; i < difference + 1; i++) {
+						if(board[curRow - i][curCol + i] == boardSymbols[1]) {
+							System.out.println("This move is invalid - crosses paths with #");
+							return false;
+						} else if(board[curRow - i][curCol + i] == boardSymbols[2]) {
+							System.out.println("This move is invalid - crosses paths with the opposing player");
+							return false;
+						}
+					}
+
+				} else {		// (-, -)
+
+					for(int i = 1; i < difference + 1; i++) {
+						if(board[curRow - i][curCol - i] == boardSymbols[1]) {
+							System.out.println("This move is invalid - crosses paths with #");
+							return false;
+						} else if(board[curRow - i][curCol - i] == boardSymbols[2]) {
+							System.out.println("This move is invalid - crosses paths with the opposing player");
+							return false;
+						}
+					}
+
+				}
+			}
+		}	
+		
+		//performs changes to board if valid
+		System.out.println("Valid Move");
+
+		board[curRow][curCol] = boardSymbols[1]; //#
+
+		if(isX) {
+			xRow = tmpRow;
+			xCol = tmpCol;
+			board[xRow][xCol] = boardSymbols[2];
+		} else {
+			oRow = tmpRow;
+			oCol = tmpCol;			
+			board[oRow][oCol] = boardSymbols[3]; //O
+		}
+
+		return true;
+		
 	}
 
-	public void oMove(String move) {
-		//interpret string, determine new row and col
+	public boolean oMove(String move) {
+		
+		//interpret move string, determine new row and col
 		int tmpRow = -1, tmpCol = -1;
-
 		char[] moveArray = move.toCharArray();
-
 		switch(moveArray[0]) {
 			case 'A': tmpRow = 0; break;
 			case 'B': tmpRow = 1; break;
@@ -94,10 +246,10 @@ public class Board {
 		tmpCol = Character.getNumericValue(moveArray[1]) - 1;
 
 		//determines if the new move is valid
-		//make sure it is not in the exact same spot
-		if(oRow == tmpRow && oCol == tmpCol) {
-			System.out.println("This move is invalid - the player is already in that location");
-			return;
+		//make sure it is not in the exact same spot or in the spot of the opponent
+		if(oRow == tmpRow && oCol == tmpCol || xRow == tmpRow && xCol == tmpCol) {
+			System.out.println("This move is invalid - there is a player already in that location");
+			return false;
 		}
 
 		//check if it is a valid direction
@@ -106,36 +258,16 @@ public class Board {
 				(Math.abs(tmpRow - oRow) == Math.abs(tmpCol - oCol)) /*diagonal move*/ )) {
 
 			System.out.println("This move is invalid - move is not in a valid direction");
-			return;
+			return false;
 		}
 
 		//check that it does not cross or land on an already used space, #
+		//if oRow == tmpRow, this is a horizontal move
 		if(oRow == tmpRow) {
 
 			//go from smallest row to largest row
 			int low, high;
-			if(oRow < tmpRow){
-				low = oRow;
-				high = tmpRow;
-			} else {
-				low = tmpRow;
-				high = oRow;
-			}
-
-			//perform a check for # at each location
-			for(int i = low; i < high - low; i++) {
-				if(board[oRow][i] == boardSymbols[1]) {
-					//found a # symbol on the way to the new move or at the new location
-					System.out.println("This move is invalid - crosses paths with #");
-					return;
-				}
-			}
-
-		} else if(oCol == tmpCol) {
-
-			//go from smallest col to largest col
-			int low, high;
-			if(oCol < tmpCol) {
+			if(oCol < tmpCol){
 				low = oCol;
 				high = tmpCol;
 			} else {
@@ -144,11 +276,39 @@ public class Board {
 			}
 
 			//perform a check for # at each location
-			for(int i = low; i < high - low; i++) {
+			for(int i = low; i < low + (high - low) + 1; i++) {
+
+				//found a # symbol on the way to the new move or at the new location
+				if(board[oRow][i] == boardSymbols[1]) {
+					System.out.println("This move is invalid - crosses paths with #");
+					return false;
+				} else if(board[oRow][i] == boardSymbols[2]) {
+					System.out.println("This move is invalid - crosses paths with the opposing player");
+					return false;
+				}
+			}
+
+		} else if(oCol == tmpCol) { //if oCol == tmpCol, this is a vertical move
+
+			//go from smallest col to largest col
+			int low, high;
+			if(oRow < tmpRow) {
+				low = oRow; //0
+				high = tmpRow; //7
+			} else {
+				low = tmpRow;
+				high = oRow;
+			}
+
+			//perform a check for # at each location
+			for(int i = low; i < low + (high - low) + 1; i++) {
 				if(board[i][oCol] == boardSymbols[1]) {
 					//found a # symbol on the way to the new move or at the new location
 					System.out.println("This move is invalid - crosses paths with #");
-					return;
+					return false;
+				} else if(board[i][oCol] == boardSymbols[2]) {
+					System.out.println("This move is invalid - crosses paths with the opposing player");
+					return false;
 				}
 			}
 
@@ -166,7 +326,10 @@ public class Board {
 					for(int i = 1; i < difference + 1; i++) {
 						if(board[oRow + i][oCol + i] == boardSymbols[1]) {
 							System.out.println("This move is invalid - crosses paths with #");
-							return;
+							return false;
+						} else if(board[oRow + i][oCol + i] == boardSymbols[2]) {
+							System.out.println("This move is invalid - crosses paths with the opposing player");
+							return false;
 						}
 					}
 
@@ -175,7 +338,10 @@ public class Board {
 					for(int i = 1; i < difference + 1; i++) {
 						if(board[oRow + i][oCol - i] == boardSymbols[1]) {
 							System.out.println("This move is invalid - crosses paths with #");
-							return;
+							return false;
+						} else if(board[oRow + i][oCol - i] == boardSymbols[2]) {
+							System.out.println("This move is invalid - crosses paths with the opposing player");
+							return false;
 						}
 					}
 
@@ -186,7 +352,10 @@ public class Board {
 					for(int i = 1; i < difference + 1; i++) {
 						if(board[oRow - i][oCol + i] == boardSymbols[1]) {
 							System.out.println("This move is invalid - crosses paths with #");
-							return;
+							return false;
+						} else if(board[oRow - i][oCol + i] == boardSymbols[2]) {
+							System.out.println("This move is invalid - crosses paths with the opposing player");
+							return false;
 						}
 					}
 
@@ -195,7 +364,10 @@ public class Board {
 					for(int i = 1; i < difference + 1; i++) {
 						if(board[oRow - i][oCol - i] == boardSymbols[1]) {
 							System.out.println("This move is invalid - crosses paths with #");
-							return;
+							return false;
+						} else if(board[oRow - i][oCol - i] == boardSymbols[2]) {
+							System.out.println("This move is invalid - crosses paths with the opposing player");
+							return false;
 						}
 					}
 
@@ -205,7 +377,7 @@ public class Board {
 
 
 		//performs changes to board if valid
-		System.out.println("If you made it to this point, that move was valid!!!");
+		System.out.println("Valid Move");
 
 		board[oRow][oCol] = boardSymbols[1]; //#
 
@@ -213,6 +385,8 @@ public class Board {
 		oCol = tmpCol;
 
 		board[oRow][oCol] = boardSymbols[3]; //O
+		
+		return true;
 
 	}
 
@@ -220,9 +394,7 @@ public class Board {
 	 *  Print the board to the project's specifications
 	 */
 	public void print() {
-		//System.out.println("  1 2 3 4 5 6 7 8");
-
-		System.out.println("  1 2 3 4");
+		System.out.println("  1 2 3 4 5 6 7 8");
 		
 		for(int i = 0; i < BOARD_SIZE; i++) {
 			switch(i) {
@@ -247,7 +419,7 @@ public class Board {
 		for(int i = 0; i < boards.length; i++) {
 			boards[i].print();
 			boards[i].updateLocations();
-			System.out.println("projected value: " +  boards[i].projectedValue);
+			//System.out.println("projected value: " +  boards[i].projectedValue);
 			//System.out.println("utility: " + boards[i].getUtilityValue());
 			//System.out.println("X score: " + boards[i].getXScore());
 			//System.out.println("O score: " + boards[i].getOScore());

@@ -1,102 +1,122 @@
 package com.vgruiz;
 
+import java.util.Random;
 import java.util.Scanner;
 
 public class Main {
 
+	static Scanner scanner = new Scanner(System.in);
+	static Computer computer;
+	static double timeLimit;
+
 	public static void main(String[] args) {
+		/**
+		 * true = two computer players against themselves
+		 * false = human player vs computer
+		 */
+		boolean gameMode = false;
+		
 		Board board = new Board();
+		System.out.println("INITIAL BOARD:");
 		board.print();
 		
-		Computer computer = new Computer();		
-		
-		/**
-		 * An array of the successor[] array indexes that represent the states that are in the decision PATH to the chosen terminal state
-		 */
-		int[] chosenStates = new int[board.BOARD_SIZE * board.BOARD_SIZE];
-		
-		int chosenStatesCounter = 0;
-		
-		
-		System.out.println("starting minimax");
-		
-		//this board should now be the root node of the full tree
-		board = computer.MinimaxDecision(board, true);
-		
-		//board.print(board.successors);
-		
-		Board cur = board;
-		boolean maxPlay = true;
-		int testVal;
-		
-		while(!cur.isTerminal()) {
-			if(maxPlay) {
-				testVal = Integer.MIN_VALUE;				
+		//System.out.println("starting minimax");
+		if(gameMode == true) {
+			
+			Board cur = board;
+			Boolean maxPlayer = true;
+			while(!cur.isTerminal()) {
+				cur = computerMove(cur, maxPlayer);
+				
+//				computer = new Computer();
+//				cur = new Board(cur.board);
+//				cur = computer.MinimaxIterativeDeepening(cur, maxPlayer);
+//				System.out.println("Chosen move: ");
+//				cur.print();
+//				computer = null; //to free up all of the memory computer uses, trying to avoid an OutOfMemoryError
+//				System.gc();
+
+				maxPlayer = !maxPlayer;
+			}
+			
+			System.out.println("done");
+			
+		} else {
+			//computer = new Computer();
+			Board cur = board;
+			Boolean maxPlayer = false;
+			
+			//get player order
+			System.out.println("Who goes first? C for computer, O for opponent.");
+			char firstPlayer = scanner.next().charAt(0);
+			/**
+			 * if Grant is going first, my program should initially
+			 * be waiting for a move input.
+			 */
+			
+			//get time limit
+			System.out.println("Enter a time limit:");
+			timeLimit = scanner.nextDouble();
+			
+			
+			if(firstPlayer == 'c') {
+				while(!cur.isTerminal()) {
+					cur = computerMove(cur, true);
+					playerMove(cur, false);					
+				}
 			} else {
-				testVal = Integer.MAX_VALUE;
-			}
-			
-			for(int i = 0; i < cur.successors.length; i++) {
-				
-				if(maxPlay) {
-					testVal = Math.max(testVal, cur.successors[i].projectedValue);
-				} else {
-					testVal = Math.min(testVal, cur.successors[i].projectedValue);
+				while(!cur.isTerminal()) {
+					playerMove(cur, true);
+					cur = computerMove(cur, false);
 				}
 			}
 			
-			for(int i = 0; i < cur.successors.length; i++) {
-				
-				if(cur.successors[i].projectedValue == testVal) {
-					chosenStates[chosenStatesCounter] = i;
-					chosenStatesCounter++;
-					cur = cur.successors[i];
-					break;
-				}
-			}
+//			while(!cur.isTerminal()) {
+//				computer = new Computer(timeLimit);
+//				cur = new Board(cur.board);
+//				System.out.println("Computer turn...");
+//				cur = computer.MinimaxIterativeDeepening(cur, maxPlayer);
+//				cur.print();
+//				computer = null;
+//				System.gc();
+//
+//				System.out.println("Human turn...");
+//				while(!cur.oMove(getMove())) {
+//					//this is so the getMove() function repeats until there is a valid move
+//				}
+//				cur.print();
+//			}
 			
-			maxPlay = !maxPlay;
-			
+			System.out.println("done");
 		}
 		
-		//printing the results
-		board.print(); //initial board
-		Board current = board;
-		
-		for(int i = 0; i < chosenStatesCounter; i++) {
-			current.successors[chosenStates[i]].print();
-			current = current.successors[chosenStates[i]];
-		}
-		
-		
-		
-		
-		
-		
-		
-		
-//		System.out.println("______");
-		
-//		Board cur = null;
-//		cur = board;
-//		boolean maxTurn = true;
-//		
-//		while(!cur.isTerminal()) {
-//			cur = computer.MinimaxDecision(cur, maxTurn);
-//			maxTurn = !maxTurn;
-//			System.out.println("minimax complete, projected value: " + cur.projectedValue);
-//			
-//			//System.out.println("minimax complete, utility value: " + cur.getUtilityValue());
-////			System.out.println("X score: " + cur.getXScore());
-////			System.out.println("O score: " + cur.getOScore());
-//			cur.print();
-//		}
-		
-		System.out.println("done");
 	}
 
+	public static Board computerMove(Board board, boolean maxPlayer) {
+		Board cur = board;
+		computer = new Computer(timeLimit);
+		cur = new Board(cur.board);
+		
+		System.out.println("Computer turn...");
+		cur = computer.MinimaxIterativeDeepening(cur, maxPlayer);
+		cur.print();
+		computer = null;
+		System.gc();
+		return cur;
+	}
+	
+	public static void playerMove(Board board, boolean isX) {
+		Board cur = board;
+		
+		System.out.println("Human turn...");
+		while(!cur.manualMove(isX, getMove())) {
+			
+		}
+		
+		cur.print();
+	}
+	
 	public static String getMove() {
-		Scanner scanner = new Scanner(System.in);
 		System.out.print("Enter move: ");
 		String move = scanner.next();
 
