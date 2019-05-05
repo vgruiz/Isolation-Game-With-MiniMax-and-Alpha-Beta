@@ -27,7 +27,6 @@ public class Computer {
 //		try {
 			for(int i = 0; i < 20; i++) {
 				cur = MinimaxDecision(cur, i, true);
-				System.out.println("________________"+diffTime+"________" + i);
 			}
 //		} catch (NullPointerException n) {
 //			System.out.println("NullPointerException caught, returning the best nextState.");
@@ -57,8 +56,10 @@ public class Computer {
 		boolean maxPlayer = isMaximizingPlayer;
 		int testVal;
 		
-		while(!cur.isTerminal() && depth > 0) {
-			depth--;
+		int d = depth;
+		
+		while(!cur.isTerminal() && d > 0) {
+			d--;
 			
 			//setting the initial testVal based on which players turn it is
 			if(maxPlayer) {
@@ -110,14 +111,15 @@ public class Computer {
 //				if(cur.successors[i].projectedValue == testVal) {
 //					cnt++; //counting how many times we come across a projectedValue == testVal
 //					if(cnt == randomInt) {
-//						//System.out.println("Selected Random Next State: " + cnt);
 //						chosenStates[chosenStatesCounter] = i;
 //						chosenStatesCounter++;
 //						
-//						//System.out.println("HEREHEREHERE");
+//						//cur.print(cur.successors);
 //						
-//						cur.print(cur.successors);
-//						
+//						if(d == 0) {
+//							System.out.println("d == 0");
+//							break;
+//						}
 //						cur = cur.successors[i];
 //						if(cur.successors==null)
 //						{
@@ -128,15 +130,21 @@ public class Computer {
 //				}
 //			}
 			
+//			if(cur.successors == null) {
+//				System.out.println("depth = " + depth);
+//				break;
+//			}
 			
 			maxPlayer = !maxPlayer;
 			
 		}
 		
 		//printing the results and returning the deepest chosen state
+		System.out.println("Printing path thus far: ");
 		Board current = state;
 		for(int i = 0; i < chosenStatesCounter; i++) {
 			current.successors[chosenStates[i]].print();
+			
 			//saving the next move (from the root node) from this Minimax run
 			if(i + 1 == chosenStatesCounter) {
 				nextState = state.successors[chosenStates[0]];

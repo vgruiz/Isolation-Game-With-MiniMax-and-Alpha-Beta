@@ -13,13 +13,9 @@ public class Main {
 		System.out.println("starting minimax");
 		
 		//this board should now be the root node of the full tree
-		//board = computer.MinimaxDecision(board, depth, true);
 		board = computer.MinimaxIterativeDeepening(board, true);
 		
 		board.print();
-		
-		//Random rand = new Random();
-		//System.out.println(rand.nextInt(1));
 		
 		System.out.println("done");
 	}
