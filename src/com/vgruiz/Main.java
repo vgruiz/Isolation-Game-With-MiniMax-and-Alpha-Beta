@@ -49,20 +49,22 @@ public class Main {
 			//get time limit
 			System.out.println("Enter a time limit:");
 			double timeLimit = scanner.nextDouble();	
-			computer = new Computer(timeLimit);
 			
 			while(!cur.isTerminal()) {
-				System.out.println("Computer goes: ");
+				computer = new Computer(timeLimit);
+				cur = new Board(cur.board);
+				System.out.println("Computer turn...");
 				cur = computer.MinimaxIterativeDeepening(cur, maxPlayer);
 				cur.print();
+				computer = null;
+				System.gc();
 
-				System.out.println("Human goes: ");
-				cur.oMove(getMove());
+				System.out.println("Human turn...");
+				while(!cur.oMove(getMove())) {
+					//this is so the getMove() function repeats until there is a valid move
+				}
 				cur.print();
 			}
-			
-			
-			
 			
 		}
 		
