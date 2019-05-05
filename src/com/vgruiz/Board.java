@@ -1,7 +1,7 @@
 package com.vgruiz;
 
 public class Board {
-	final int BOARD_SIZE = 4;
+	final int BOARD_SIZE = 8;
 	
 	
 	
@@ -220,9 +220,7 @@ public class Board {
 	 *  Print the board to the project's specifications
 	 */
 	public void print() {
-		//System.out.println("  1 2 3 4 5 6 7 8");
-
-		System.out.println("  1 2 3 4");
+		System.out.println("  1 2 3 4 5 6 7 8");
 		
 		for(int i = 0; i < BOARD_SIZE; i++) {
 			switch(i) {
