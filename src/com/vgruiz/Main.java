@@ -61,13 +61,13 @@ public class Main {
 			
 			if(firstPlayer == 'c') {
 				while(!cur.isTerminal()) {
-					cur = computerMove(cur, maxPlayer);
-					playerMove(cur, true);					
+					cur = computerMove(cur, true);
+					playerMove(cur, false);					
 				}
 			} else {
 				while(!cur.isTerminal()) {
-					playerMove(cur, false);
-					cur = computerMove(cur, maxPlayer);
+					playerMove(cur, true);
+					cur = computerMove(cur, false);
 				}
 			}
 			
@@ -113,9 +113,6 @@ public class Main {
 			
 		}
 		
-//		while(!cur.oMove(getMove())) {
-//			//this is so the getMove() function repeats until there is a valid move
-//		}
 		cur.print();
 	}
 	
