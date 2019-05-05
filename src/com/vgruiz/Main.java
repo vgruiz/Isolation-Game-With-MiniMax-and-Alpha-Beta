@@ -62,11 +62,11 @@ public class Main {
 			if(firstPlayer == 'c') {
 				while(!cur.isTerminal()) {
 					cur = computerMove(cur, maxPlayer);
-					playerMove(cur);					
+					playerMove(cur, true);					
 				}
 			} else {
 				while(!cur.isTerminal()) {
-					playerMove(cur);
+					playerMove(cur, false);
 					cur = computerMove(cur, maxPlayer);
 				}
 			}
@@ -105,11 +105,11 @@ public class Main {
 		return cur;
 	}
 	
-	public static void playerMove(Board board) {
+	public static void playerMove(Board board, boolean isX) {
 		Board cur = board;
 		
 		System.out.println("Human turn...");
-		while(!cur.manualMove(true, getMove())) {
+		while(!cur.manualMove(isX, getMove())) {
 			
 		}
 		
