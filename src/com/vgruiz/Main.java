@@ -44,7 +44,7 @@ public class Main {
 		} else {
 			//computer = new Computer();
 			Board cur = board;
-			Boolean maxPlayer = true;
+			Boolean maxPlayer = false;
 			
 			//get player order
 			System.out.println("Who goes first? C for computer, O for opponent.");
@@ -109,9 +109,13 @@ public class Main {
 		Board cur = board;
 		
 		System.out.println("Human turn...");
-		while(!cur.oMove(getMove())) {
-			//this is so the getMove() function repeats until there is a valid move
+		while(!cur.manualMove(true, getMove())) {
+			
 		}
+		
+//		while(!cur.oMove(getMove())) {
+//			//this is so the getMove() function repeats until there is a valid move
+//		}
 		cur.print();
 	}
 	
