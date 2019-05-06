@@ -4,11 +4,25 @@ import java.util.Random;
 
 public class Computer {
 	int cnt = 0;
+	
+	/**
+	 * Stores the indexes of the solution path.
+	 */
 	int[] chosenStates;
+	
+	/**
+	 * Used to iterate thorugh chosenStates[]
+	 */
 	int chosenStatesCounter;
+	
+	//timer variables
 	long startTime;
 	long curTime;
 	double diffTime;
+	
+	/**
+	 * Default time limit for Minimax. Can be overwritten.
+	 */
 	double TIME_LIMIT = 18.0;
 	
 	/**

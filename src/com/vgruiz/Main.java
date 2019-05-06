@@ -52,7 +52,7 @@ public class Main {
 			System.out.println("\n");
 			
 			
-			if(firstPlayer == 'c') {
+			if(Character.toLowerCase(firstPlayer) == 'c') {
 				while(!cur.isTerminal()) {
 					cur = computerMove(cur, true);
 					cur.print(computerMoves, opponentMoves);
