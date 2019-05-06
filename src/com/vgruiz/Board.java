@@ -1,17 +1,19 @@
 package com.vgruiz;
 
 public class Board {
+	/**
+	 * The board size. Used for many calculations throughout this class.
+	 */
 	final int BOARD_SIZE = 8;
-	
-	
 	
 	/**
 	 * Stores the successors of the current board state
 	 */
 	Board[] successors;
+	
 	/**
 	 * As Computer.MinValue or .MaxValue returns v, the projected value will be passed to the parent board.
-	 * projectedValue should not be -1.
+	 * projectedValue should not be -1000000.
 	 */
 	int projectedValue = -1000000;
 
@@ -27,9 +29,12 @@ public class Board {
 
 	//positions for a new board
 	//initially at start positions as specified
-	int xRow = 0, xCol = 0; //X is computer
-	int oRow = BOARD_SIZE - 1, oCol = BOARD_SIZE - 1; //O is player
+	int xRow = 0, xCol = 0;
+	int oRow = BOARD_SIZE - 1, oCol = BOARD_SIZE - 1;
 
+	/**
+	 * Constructor that is used initially.
+	 */
 	public Board() {
 		board = new char[BOARD_SIZE][BOARD_SIZE];
 
@@ -41,15 +46,23 @@ public class Board {
 
 		board[xRow][xCol] = boardSymbols[2];
 		board[oRow][oCol] = boardSymbols[3];
-
-		//Computer computer = new Computer();
 	}
 
+	/**
+	 * Constructor that creates a board object with the passed char matrix.
+	 * @param newBoard
+	 */
 	public Board(char[][] newBoard){
 		board = newBoard.clone();
 		updateLocations();
 	}
 
+	/**
+	 * Handles manual player moves for either X or O.
+	 * @param isX
+	 * @param move
+	 * @return
+	 */
 	public boolean manualMove(boolean isX, String move) {
 		
 		//set curRow and curCol
@@ -92,6 +105,7 @@ public class Board {
 		if(!((curRow == tmpRow) /*horizontal move*/ ||
 				(curCol == tmpCol) /*vertical move*/ ||
 				(Math.abs(tmpRow - curRow) == Math.abs(tmpCol - curCol)) /*diagonal move*/ )) {
+			
 			System.out.println("This move is invalid - move is not in a valid direction");
 			return false;
 		}
@@ -209,7 +223,7 @@ public class Board {
 		}	
 		
 		//performs changes to board if valid
-		System.out.println("Valid Move");
+		//System.out.println("Valid Move");
 
 		board[curRow][curCol] = boardSymbols[1]; //#
 
@@ -224,174 +238,10 @@ public class Board {
 		}
 
 		return true;
-		
-	}
-
-	public boolean oMove(String move) {
-		
-		//interpret move string, determine new row and col
-		int tmpRow = -1, tmpCol = -1;
-		char[] moveArray = move.toCharArray();
-		switch(moveArray[0]) {
-			case 'A': tmpRow = 0; break;
-			case 'B': tmpRow = 1; break;
-			case 'C': tmpRow = 2; break;
-			case 'D': tmpRow = 3; break;
-			case 'E': tmpRow = 4; break;
-			case 'F': tmpRow = 5; break;
-			case 'G': tmpRow = 6; break;
-			case 'H': tmpRow = 7; break;
-		}
-
-		tmpCol = Character.getNumericValue(moveArray[1]) - 1;
-
-		//determines if the new move is valid
-		//make sure it is not in the exact same spot or in the spot of the opponent
-		if(oRow == tmpRow && oCol == tmpCol || xRow == tmpRow && xCol == tmpCol) {
-			System.out.println("This move is invalid - there is a player already in that location");
-			return false;
-		}
-
-		//check if it is a valid direction
-		if(!((oRow == tmpRow) /*horizontal move*/ ||
-				(oCol == tmpCol) /*vertical move*/ ||
-				(Math.abs(tmpRow - oRow) == Math.abs(tmpCol - oCol)) /*diagonal move*/ )) {
-
-			System.out.println("This move is invalid - move is not in a valid direction");
-			return false;
-		}
-
-		//check that it does not cross or land on an already used space, #
-		//if oRow == tmpRow, this is a horizontal move
-		if(oRow == tmpRow) {
-
-			//go from smallest row to largest row
-			int low, high;
-			if(oCol < tmpCol){
-				low = oCol;
-				high = tmpCol;
-			} else {
-				low = tmpCol;
-				high = oCol;
-			}
-
-			//perform a check for # at each location
-			for(int i = low; i < low + (high - low) + 1; i++) {
-
-				//found a # symbol on the way to the new move or at the new location
-				if(board[oRow][i] == boardSymbols[1]) {
-					System.out.println("This move is invalid - crosses paths with #");
-					return false;
-				} else if(board[oRow][i] == boardSymbols[2]) {
-					System.out.println("This move is invalid - crosses paths with the opposing player");
-					return false;
-				}
-			}
-
-		} else if(oCol == tmpCol) { //if oCol == tmpCol, this is a vertical move
-
-			//go from smallest col to largest col
-			int low, high;
-			if(oRow < tmpRow) {
-				low = oRow; //0
-				high = tmpRow; //7
-			} else {
-				low = tmpRow;
-				high = oRow;
-			}
-
-			//perform a check for # at each location
-			for(int i = low; i < low + (high - low) + 1; i++) {
-				if(board[i][oCol] == boardSymbols[1]) {
-					//found a # symbol on the way to the new move or at the new location
-					System.out.println("This move is invalid - crosses paths with #");
-					return false;
-				} else if(board[i][oCol] == boardSymbols[2]) {
-					System.out.println("This move is invalid - crosses paths with the opposing player");
-					return false;
-				}
-			}
-
-		} else if(Math.abs(tmpRow - oRow) == Math.abs(tmpCol - oCol)) {
-			int difference = Math.abs(tmpRow - oRow);
-
-			//determine direction of movement
-			boolean rowSign = (tmpRow - oRow) > 0; //going in the direction towards tmpRow, is tmpRow at a greater row than the current position oRow. true +, false -
-			boolean colSign = (tmpCol - oCol) > 0;
-
-			//check for # in that direction only
-			if(rowSign) {
-				if(colSign) {	// (+, +)
-
-					for(int i = 1; i < difference + 1; i++) {
-						if(board[oRow + i][oCol + i] == boardSymbols[1]) {
-							System.out.println("This move is invalid - crosses paths with #");
-							return false;
-						} else if(board[oRow + i][oCol + i] == boardSymbols[2]) {
-							System.out.println("This move is invalid - crosses paths with the opposing player");
-							return false;
-						}
-					}
-
-				} else {		// (+, -)
-
-					for(int i = 1; i < difference + 1; i++) {
-						if(board[oRow + i][oCol - i] == boardSymbols[1]) {
-							System.out.println("This move is invalid - crosses paths with #");
-							return false;
-						} else if(board[oRow + i][oCol - i] == boardSymbols[2]) {
-							System.out.println("This move is invalid - crosses paths with the opposing player");
-							return false;
-						}
-					}
-
-				}
-			} else {
-				if(colSign) {	// (-, +)
-
-					for(int i = 1; i < difference + 1; i++) {
-						if(board[oRow - i][oCol + i] == boardSymbols[1]) {
-							System.out.println("This move is invalid - crosses paths with #");
-							return false;
-						} else if(board[oRow - i][oCol + i] == boardSymbols[2]) {
-							System.out.println("This move is invalid - crosses paths with the opposing player");
-							return false;
-						}
-					}
-
-				} else {		// (-, -)
-
-					for(int i = 1; i < difference + 1; i++) {
-						if(board[oRow - i][oCol - i] == boardSymbols[1]) {
-							System.out.println("This move is invalid - crosses paths with #");
-							return false;
-						} else if(board[oRow - i][oCol - i] == boardSymbols[2]) {
-							System.out.println("This move is invalid - crosses paths with the opposing player");
-							return false;
-						}
-					}
-
-				}
-			}
-		}
-
-
-		//performs changes to board if valid
-		System.out.println("Valid Move");
-
-		board[oRow][oCol] = boardSymbols[1]; //#
-
-		oRow = tmpRow;
-		oCol = tmpCol;
-
-		board[oRow][oCol] = boardSymbols[3]; //O
-		
-		return true;
-
 	}
 
 	/**
-	 *  Print the board to the project's specifications
+	 *  Print the board.
 	 */
 	public void print() {
 		System.out.println("  1 2 3 4 5 6 7 8");
@@ -409,12 +259,72 @@ public class Board {
 			}
 			for(int j = 0; j < BOARD_SIZE; j++) {
 				System.out.print(" " + board[i][j]);
+				
+				//print the computer v opponent moves here
 			}
+			
 			System.out.println();
 		}
 		System.out.println();
 	}
+	
+	/**
+	 *  Print the board with the computer and opponent moves
+	 */
+	public void print(String[] computerMoves, String[] opponentMoves) {
+		System.out.println("  1 2 3 4 5 6 7 8	   Computer vs. Opponent");
+		
+		for(int i = 0; i < computerMoves.length; i++) {
+			
+			if (i < BOARD_SIZE) {
+				switch(i) {
+				case 0: System.out.print('A'); break;
+				case 1: System.out.print('B'); break;
+				case 2: System.out.print('C'); break;
+				case 3: System.out.print('D'); break;
+				case 4: System.out.print('E'); break;
+				case 5: System.out.print('F'); break;
+				case 6: System.out.print('G'); break;
+				case 7: System.out.print('H');break;
+				}
+				
+				for(int j = 0; j < BOARD_SIZE; j++) {
+					System.out.print(" " + board[i][j]);
+					
+				}				
+			}
+			
+			//print the computer v opponent moves here
+			if(i >= BOARD_SIZE && computerMoves[i] == null && opponentMoves[i] == null) {
+				break;
+			}
+			
+			if(i >= BOARD_SIZE) {
+				System.out.print("		");
+			}
+			
+			if(computerMoves[i] != null) {
+				System.out.print("	" + (i+1) + ". " + computerMoves[i]);
+			} else {
+				System.out.print("	");
+			}
+			
+			if(opponentMoves[i] != null) {
+				System.out.println("		" + opponentMoves[i]);
+			} else {
+				System.out.println();
+			}
 
+			//System.out.println();
+		}
+		System.out.println("--------------------------------------------------");
+		System.out.println();
+	}
+
+	/**
+	 * Print the array of boards that is passed as the argument. Primarily used to print the full board.successors array.
+	 * @param boards
+	 */
 	public void print(Board[] boards) {
 		for(int i = 0; i < boards.length; i++) {
 			boards[i].print();
@@ -427,7 +337,10 @@ public class Board {
 		}
 	}
 	
-	// checks to see if a terminal state is reached (a winner is chosen)
+	/**
+	 * Checks to see if a terminal state is reached
+	 * @return
+	 */
 	public boolean isTerminal() {
 		if(getOScore() == 0 || getXScore() == 0)
 			return true;
@@ -435,9 +348,12 @@ public class Board {
 			return false;
 	}
 	
-	public char[][] clone(char[][] board) {
-		int len = board.length;
-		
+	/**
+	 * Clones the char matrix that represents the board.
+	 * @param board
+	 * @return
+	 */
+	public char[][] clone(char[][] board) {		
 		char[][] newBoard = new char[board.length][board.length];
 		
 		for(int i = 0; i < board.length; i++) {
@@ -449,6 +365,10 @@ public class Board {
 		return newBoard;
 	}
 
+	/**
+	 * Generates all successors of the current board.
+	 * @param isMaximizingPlayer
+	 */
 	public void generateSuccessors(boolean isMaximizingPlayer){
 		int counter = 0;
 		Board[] boards;
@@ -469,8 +389,7 @@ public class Board {
 			
 		char[][] newCharBoard = clone(board);
 		
-		// diagonal successors
-		
+		// 						diagonal successors
 		//down and right
 		for(int i = row + 1, j = col + 1; i < BOARD_SIZE && j < BOARD_SIZE; i++, j++) {
 			if(board[i][j] == boardSymbols[0]) {
@@ -528,8 +447,8 @@ public class Board {
 		}
 		
 
-		// horizontal successors
-		
+		// 							horizontal successors
+		//to the right
 		for(int i = col + 1; i < BOARD_SIZE; i++) {
 			if(board[row][i] == boardSymbols[0]) {
 				newCharBoard = clone(board);
@@ -543,6 +462,7 @@ public class Board {
 				break;
 		}
 		
+		//to the left
 		for(int i = col - 1; i >= 0; i--) {
 			if(board[row][i] == boardSymbols[0]) {
 				newCharBoard = clone(board);
@@ -556,8 +476,8 @@ public class Board {
 				break;
 		}
 		
-		// vertical successors
-		
+		// 							vertical successors
+		//down
 		for(int i = row + 1; i < BOARD_SIZE; i++) {
 			if(board[i][col] == boardSymbols[0]) {
 				newCharBoard = clone(board);
@@ -571,6 +491,7 @@ public class Board {
 				break;
 		}
 		
+		//up
 		for(int i = row - 1; i >= 0; i--) {
 			if(board[i][col] == boardSymbols[0]) {
 				newCharBoard = clone(board);
@@ -588,7 +509,7 @@ public class Board {
 	}
 
 	/**
-	 * Update xRow, xCol, oRow, oCol
+	 * Update xRow, xCol, oRow, oCol.
 	 */
 	private void updateLocations() {
 		for(int i = 0; i < BOARD_SIZE; i++) {
@@ -602,7 +523,6 @@ public class Board {
 				}
 			}
 		}
-		
 	}
 
 	/**
@@ -632,7 +552,7 @@ public class Board {
 	}
 
 	/**
-	 *  
+	 * Gets number of empty spaces diagonal to the given (row, col) position
 	 * @param row
 	 * @param col
 	 * @return the number of moves diagonally for a given location of [row, col]
@@ -689,7 +609,7 @@ public class Board {
 	}
 
 	/**
-	 *  
+	 * Gets number of empty spaces directly vertical to the given (row, col) position 
 	 * @param row
 	 * @param col
 	 * @return the number of moves vertically for a given location of [row, col]
@@ -721,7 +641,7 @@ public class Board {
 	}
 
 	/**
-	 *  
+	 * Gets number of empty spaces directly horizontal to the given (row, col) position
 	 * @param row
 	 * @param col
 	 * @return the number of moves horizontally for a given location of [row, col]

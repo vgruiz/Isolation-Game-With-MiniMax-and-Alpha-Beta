@@ -9,7 +9,7 @@ public class Computer {
 	long startTime;
 	long curTime;
 	double diffTime;
-	double TIME_LIMIT = 20.0;
+	double TIME_LIMIT = 18.0;
 	
 	/**
 	 * Get's assigned the next move from the root node and gets updated for each iteration of MinimaxDecision at different depths
@@ -19,9 +19,7 @@ public class Computer {
 	/**
 	 * default constructor
 	 */
-	public Computer() {
-		
-	}
+	public Computer() {}
 	
 	/**
 	 * constructor to explicitly set the time limit
@@ -46,13 +44,21 @@ public class Computer {
 				cur = MinimaxDecision(cur, i, isMaximizingPlayer);
 			}
 		} catch (NullPointerException n) {
-			System.out.println("NullPointerException caught, returning the best nextState.");
+			//System.out.println("NullPointerException caught, returning the best nextState.");
 			return nextState;
 		}
 		
 		return nextState;
 	}
 	
+	/**
+	 * Performs Minimax with Alpha-Beta Pruning to a depth
+	 * Returns initial root node with successor array filled out.
+	 * @param state
+	 * @param depth
+	 * @param isMaximizingPlayer
+	 * @return
+	 */
 	public Board MinimaxDecision(Board state, int depth, boolean isMaximizingPlayer) {
 		int v;
 		
@@ -87,9 +93,13 @@ public class Computer {
 			//if !maxPlayer, find the min "						"
 			for(int i = 0; i < cur.successors.length; i++) {
 				if(maxPlayer) {
-					testVal = Math.max(testVal, cur.successors[i].projectedValue);
+					if(cur.successors[i].projectedValue != -1000000) {
+						testVal = Math.max(testVal, cur.successors[i].projectedValue);
+					}
 				} else {
-					testVal = Math.min(testVal, cur.successors[i].projectedValue);
+					if(cur.successors[i].projectedValue != -1000000) {
+						testVal = Math.min(testVal, cur.successors[i].projectedValue);
+					}
 				}
 			}
 			
@@ -128,30 +138,13 @@ public class Computer {
 //					if(cnt == randomInt) {
 //						chosenStates[chosenStatesCounter] = i;
 //						chosenStatesCounter++;
-//						
-//						//cur.print(cur.successors);
-//						
-//						if(d == 0) {
-//							System.out.println("d == 0");
-//							break;
-//						}
 //						cur = cur.successors[i];
-//						if(cur.successors==null)
-//						{
-//							System.out.println("failed");
-//						}
 //						break;
 //					}
 //				}
 //			}
-			
-//			if(cur.successors == null) {
-//				System.out.println("depth = " + depth);
-//				break;
-//			}
-			
+
 			maxPlayer = !maxPlayer;
-			
 		}
 		
 		//printing the results and returning the deepest chosen state
@@ -168,17 +161,22 @@ public class Computer {
 		}
 		
 		return state;
-		//return selected;
 	}
 	
+	/**
+	 * Returns the max utility value of its successors as seen from the current state
+	 * @param state
+	 * @param depth
+	 * @param alpha
+	 * @param beta
+	 * @param isMaximizingPlayer
+	 * @return
+	 */
 	public int MaxValue(Board state, int depth, int alpha, int beta, boolean isMaximizingPlayer) {
 		curTime = System.currentTimeMillis();
 		diffTime = (curTime - startTime)/1000.0;
 		
 		if (depth == 0 || state.isTerminal() || diffTime > TIME_LIMIT) {
-			if(diffTime > 19) {
-				//System.out.println(diffTime);
-			}
 			return state.getUtilityValue();
 		}
 		
@@ -189,26 +187,30 @@ public class Computer {
 			int minVal = MinValue(state.successors[i], depth - 1, alpha, beta, isMaximizingPlayer);
 			v = Math.max(minVal, v);
 			state.successors[i].projectedValue = v;
-			
-			//new additions for alpha-beta
+
 			if(v >= beta) {
 				return v;
 			}
 			alpha = Math.max(alpha, v);
-			//end new additions
 		}
 		
 		return v;
 	}
 	
+	/**
+	 * Returns the min utility value of its successors as seen from the current state
+	 * @param state
+	 * @param depth
+	 * @param alpha
+	 * @param beta
+	 * @param isMaximizingPlayer
+	 * @return
+	 */
 	public int MinValue(Board state, int depth, int alpha, int beta, boolean isMaximizingPlayer) {
 		curTime = System.currentTimeMillis();
 		diffTime = (curTime - startTime)/1000.0;
 		
 		if (depth == 0 || state.isTerminal() || diffTime > TIME_LIMIT) {
-			if(diffTime > 19) {
-				//System.out.println(diffTime);
-			}
 			return state.getUtilityValue();
 		}
 		
